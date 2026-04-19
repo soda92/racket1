@@ -1,0 +1,13 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Racket: Run Tests",
+      "type": "shell",
+      "command": "raco",
+      "args": ["test", "${file}"],
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    }
+  ]
+}
