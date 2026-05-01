@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { shuffleGrid, canMove, isSolved, type GridSize } from "../utils/gameLogic";
 import { sliceImage } from "../utils/imageProcessor";
 import { solvePuzzle } from "../utils/solver";
@@ -15,6 +15,25 @@ export function usePuzzleGame() {
   const [hasWon, setHasWon] = useState(false);
   const [isSolving, setIsSolving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const successTimeoutRef = useRef<number | null>(null);
+
+  const convertToDataUrl = async (url: string): Promise<string> => {
+    if (url.startsWith("data:")) return url;
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      console.error("Failed to convert image to data URL", err);
+      return url;
+    }
+  };
 
   const initGame = useCallback(
     async (isNewSession = true) => {
@@ -24,16 +43,24 @@ export function usePuzzleGame() {
         setMoves(0);
         setTime(0);
         setHasWon(false);
+        setShowSuccessOverlay(false);
       }
 
       try {
-        const tiles = await sliceImage(imageUrl, size);
+        // Ensure imageUrl is a stable data URL
+        let finalUrl = imageUrl;
+        if (!imageUrl.startsWith("data:")) {
+          finalUrl = await convertToDataUrl(imageUrl);
+          setImageUrl(finalUrl);
+        }
+        
+        const tiles = await sliceImage(finalUrl, size);
         setImageTiles(tiles);
       } catch (err) {
         console.error("Failed to slice image", err);
       }
     },
-    [size, imageUrl, setGrid, setMoves, setTime]
+    [size, imageUrl, setGrid, setMoves, setTime, setImageUrl]
   );
 
   useEffect(() => {
@@ -44,6 +71,19 @@ export function usePuzzleGame() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageUrl, size]);
+
+  useEffect(() => {
+    if (hasWon) {
+      setShowSuccessOverlay(true);
+      if (successTimeoutRef.current) window.clearTimeout(successTimeoutRef.current);
+      successTimeoutRef.current = window.setTimeout(() => {
+        setShowSuccessOverlay(false);
+      }, 3500);
+    }
+    return () => {
+      if (successTimeoutRef.current) window.clearTimeout(successTimeoutRef.current);
+    };
+  }, [hasWon]);
 
   const handleTileClick = useCallback(
     (index: number) => {
@@ -174,6 +214,7 @@ export function usePuzzleGame() {
     setTime,
     imageTiles,
     hasWon,
+    showSuccessOverlay,
     isSolving,
     showPreview,
     setShowPreview,

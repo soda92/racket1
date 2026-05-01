@@ -1,28 +1,22 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { LayoutGrid, Camera, EyeOff, Eye } from "lucide-react";
+import { LayoutGrid, Camera } from "lucide-react";
 import type { GridSize } from "../../utils/gameLogic";
 
 interface PuzzleControlsProps {
   size: GridSize;
   isSolving: boolean;
-  imageUrl: string;
-  showPreview: boolean;
   onSizeChange: (size: GridSize) => void;
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRandomImage: () => void;
-  onShowPreview: (show: boolean) => void;
 }
 
 export const PuzzleControls: React.FC<PuzzleControlsProps> = ({
   size,
   isSolving,
-  imageUrl,
-  showPreview,
   onSizeChange,
   onImageUpload,
   onRandomImage,
-  onShowPreview,
 }) => {
   return (
     <div className="flex flex-col gap-8">
@@ -82,28 +76,6 @@ export const PuzzleControls: React.FC<PuzzleControlsProps> = ({
           Random Artwork
         </button>
       </section>
-
-      {/* Reference & Preview */}
-      <div className="mt-auto space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Target</p>
-          <button
-            onMouseDown={() => onShowPreview(true)}
-            onMouseUp={() => onShowPreview(false)}
-            onMouseLeave={() => onShowPreview(false)}
-            onTouchStart={() => onShowPreview(true)}
-            onTouchEnd={() => onShowPreview(false)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 text-[10px] font-bold uppercase tracking-wider text-slate-300 transition-colors"
-          >
-            {showPreview ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-            Preview
-          </button>
-        </div>
-        <div className="relative aspect-square w-full rounded-xl overflow-hidden border border-white/10 shadow-lg">
-          <img src={imageUrl} alt="Reference" className="w-full h-full object-cover grayscale opacity-40" />
-          <div className="absolute inset-0 bg-indigo-500/10" />
-        </div>
-      </div>
     </div>
   );
 };
