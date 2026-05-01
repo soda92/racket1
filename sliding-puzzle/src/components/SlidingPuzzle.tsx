@@ -31,7 +31,7 @@ const SlidingPuzzle: React.FC = () => {
     initGame();
   }, [initGame]);
 
-  const handleTileClick = (index: number) => {
+  const handleTileClick = useCallback((index: number) => {
     if (hasWon) return;
 
     const emptyIndex = grid.indexOf(-1);
@@ -45,7 +45,47 @@ const SlidingPuzzle: React.FC = () => {
         setHasWon(true);
       }
     }
-  };
+  }, [grid, hasWon, size]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (hasWon) return;
+      const emptyIndex = grid.indexOf(-1);
+      const row = Math.floor(emptyIndex / size.cols);
+      const col = emptyIndex % size.cols;
+      
+      let targetIndex = -1;
+      switch (e.key) {
+        case "ArrowUp":
+        case "w":
+        case "W":
+          if (row < size.rows - 1) targetIndex = emptyIndex + size.cols;
+          break;
+        case "ArrowDown":
+        case "s":
+        case "S":
+          if (row > 0) targetIndex = emptyIndex - size.cols;
+          break;
+        case "ArrowLeft":
+        case "a":
+        case "A":
+          if (col < size.cols - 1) targetIndex = emptyIndex + 1;
+          break;
+        case "ArrowRight":
+        case "d":
+        case "D":
+          if (col > 0) targetIndex = emptyIndex - 1;
+          break;
+      }
+      
+      if (targetIndex !== -1) {
+        handleTileClick(targetIndex);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [grid, hasWon, size, handleTileClick]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
