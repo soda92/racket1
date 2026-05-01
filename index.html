@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guessing Game</title>
+    <style>
+        :root {
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --primary: #4f46e5;
+            --secondary: #64748b;
+            --success: #22c55e;
+            --error: #ef4444;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: var(--card);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 320px;
+        }
+
+        h1 { margin-top: 0; font-size: 1.5rem; }
+        
+        #status {
+            font-weight: bold;
+            height: 1.5rem;
+            margin: 1rem 0;
+            color: var(--primary);
+            transition: all 0.2s;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            aspect-ratio: 1;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        button.too-high { background: #fee2e2; color: var(--error); border-color: #fecaca; }
+        button.too-low { background: #f1f5f9; color: var(--secondary); border-color: #e2e8f0; }
+        button.correct { background: var(--success); color: white; border-color: var(--success); }
+
+        #restart-btn {
+            width: 100%;
+            aspect-ratio: auto;
+            padding: 0.75rem;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+        }
+
+        #restart-btn:hover {
+            background: var(--text);
+        }
+
+        .win-anim {
+            animation: celebrate 0.5s ease-in-out;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="game-card">
+    <h1>Guess the Number</h1>
+    <p>Pick a number between 0 and 19</p>
+    <div id="status">Good luck!</div>
+    
+    <div class="grid" id="button-grid"></div>
+    
+    <button id="restart-btn">Restart Game</button>
+</div>
+
+<script>
+    const range = 20;
+    let secret, attempts;
+    const grid = document.getElementById('button-grid');
+    const status = document.getElementById('status');
+    const card = document.getElementById('game-card');
+
+    function init() {
+        secret = Math.floor(Math.random() * range);
+        attempts = 0;
+        status.innerText = "Good luck!";
+        status.style.color = "var(--primary)";
+        grid.innerHTML = '';
+        card.classList.remove('win-anim');
+
+        for (let i = 0; i < range; i++) {
+            const btn = document.createElement('button');
+            btn.innerText = i;
+            btn.onclick = () => checkGuess(i, btn);
+            grid.appendChild(btn);
+        }
+    }
+
+    function checkGuess(i, btn) {
+        attempts++;
+        btn.disabled = true;
+
+        if (i === secret) {
+            status.innerText = `Correct! It was ${i}!`;
+            status.style.color = "var(--success)";
+            btn.classList.add('correct');
+            btn.innerText = '★';
+            card.classList.add('win-anim');
+            // Disable all other buttons
+            document.querySelectorAll('.grid button').forEach(b => b.disabled = true);
+            setTimeout(() => alert(`You won in ${attempts} attempts!`), 100);
+        } else if (i > secret) {
+            status.innerText = `${i} is too High`;
+            btn.classList.add('too-high');
+        } else {
+            status.innerText = `${i} is too Low`;
+            btn.classList.add('too-low');
+        }
+    }
+
+    document.getElementById('restart-btn').onclick = init;
+    init();
+</script>
+
+</body>
+</html>
