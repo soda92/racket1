@@ -3,18 +3,22 @@
 ;; let's play a guessing game
 
 (define frame (new frame% [label "Guess"]))
-
-(define secret (random 5))
-(define ((check i) btn evt)
-  (define found? (if (= i secret) "Yes" "No"))
+(define range 20)
+(define secret (random range))
+(define ((check i) _btn _evt)
+  (define found?
+    (cond ((= i secret) "Found")
+          ((> i secret) "Greater")
+          (else "Less"))
+    )
   (message-box "?" found?)
   (when (= i secret)
     (send frame show #false)))
 
-(for ([i (in-range 5)])
-   (new button%
-        [label (~a i)]
-        [parent frame]
-        [callback (check i)]))
+(for ([i (in-range range)])
+  (new button%
+    [label (~a i)]
+    [parent frame]
+    [callback (check i)]))
 
 (send frame show #t)
