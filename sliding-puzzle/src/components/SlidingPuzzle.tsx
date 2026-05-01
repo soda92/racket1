@@ -3,9 +3,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { shuffleGrid, canMove, isSolved } from "../utils/gameLogic";
 import type { GridSize } from "../utils/gameLogic";
 import { sliceImage } from "../utils/imageProcessor";
-import { Camera, RefreshCw, Trophy, LayoutGrid, Eye, EyeOff, Timer } from "lucide-react";
+import { solvePuzzle } from "../utils/solver";
+import { Camera, RefreshCw, Trophy, LayoutGrid, Eye, EyeOff, Timer, Maximize, Minimize, Brain, Loader2 } from "lucide-react";
 
 const SlidingPuzzle: React.FC = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isSolving, setIsSolving] = useState(false);
+
   // Persistence Helpers
   const getSaved = <T,>(key: string, fallback: T): T => {
     const saved = localStorage.getItem(key);
@@ -46,19 +51,19 @@ const SlidingPuzzle: React.FC = () => {
     }
   }, [size, imageUrl]);
 
-  // Initial Load (Load tiles for saved image)
+  // Initial Load
   useEffect(() => {
     if (grid.length === 0 || grid.length !== size.rows * size.cols) {
       initGame(true);
     } else {
-      initGame(false); // Just load the image tiles for the existing grid
+      initGame(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageUrl, size]);
 
   // Timer Logic
   useEffect(() => {
-    if (!hasWon && moves > 0) {
+    if (!hasWon && moves > 0 && !isSolving) {
       timerRef.current = window.setInterval(() => {
         setSeconds(s => s + 1);
       }, 1000);
@@ -66,10 +71,10 @@ const SlidingPuzzle: React.FC = () => {
       if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [hasWon, moves > 0]);
+  }, [hasWon, moves > 0, isSolving]);
 
   const handleTileClick = useCallback((index: number) => {
-    if (hasWon) return;
+    if (hasWon || isSolving) return;
 
     const emptyIndex = grid.indexOf(-1);
     if (canMove(index, emptyIndex, size)) {
@@ -82,11 +87,37 @@ const SlidingPuzzle: React.FC = () => {
         setHasWon(true);
       }
     }
-  }, [grid, hasWon, size]);
+  }, [grid, hasWon, size, isSolving]);
+
+  const handleAutoSolve = async () => {
+    if (isSolving || hasWon) return;
+    setIsSolving(true);
+
+    // Give UI a moment to show loading state
+    await new Promise(r => setTimeout(r, 100));
+
+    const solution = solvePuzzle(grid, size);
+
+    if (!solution) {
+      alert("No solution found within iteration limit.");
+      setIsSolving(false);
+      return;
+    }
+
+    // Playback solution
+    for (const step of solution) {
+      setGrid(step);
+      setMoves(m => m + 1);
+      await new Promise(r => setTimeout(r, 200)); // Delay between moves
+    }
+
+    setHasWon(true);
+    setIsSolving(false);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (hasWon) return;
+      if (hasWon || isSolving) return;
       const emptyIndex = grid.indexOf(-1);
       if (emptyIndex === -1) return;
 
@@ -128,15 +159,53 @@ const SlidingPuzzle: React.FC = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [grid, hasWon, size, handleTileClick]);
+  }, [grid, hasWon, size, handleTileClick, isSolving]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setImageUrl(url);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setImageUrl(base64);
+      };
+      reader.readAsDataURL(file);
     }
   };
+
+  const fetchRandomImage = async () => {
+    setIsSolving(true);
+    try {
+      const response = await fetch(`https://picsum.photos/800/800?t=${Date.now()}`);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setImageUrl(base64);
+        setIsSolving(false);
+      };
+      reader.readAsDataURL(blob);
+    } catch (err) {
+      console.error("Failed to fetch random image", err);
+      setIsSolving(false);
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
 
   const formatTime = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60);
@@ -145,7 +214,7 @@ const SlidingPuzzle: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900 via-slate-900 to-black p-4 text-white">
+    <div ref={containerRef} className="flex flex-col items-center justify-center min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900 via-slate-900 to-black p-4 text-white">
       {/* Decorative background elements */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
@@ -157,13 +226,22 @@ const SlidingPuzzle: React.FC = () => {
       >
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 border-b border-white/10 pb-8">
           <div>
-            <motion.h1 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-3xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 tracking-tighter"
-            >
-              PIXEL SLIDE
-            </motion.h1>
+            <div className="flex items-center gap-4">
+              <motion.h1 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-3xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 tracking-tighter"
+              >
+                PIXEL SLIDE
+              </motion.h1>
+              <button 
+                onClick={toggleFullscreen}
+                className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+                title="Full Screen"
+              >
+                {isFullscreen ? <Minimize className="w-5 h-5 text-slate-400" /> : <Maximize className="w-5 h-5 text-slate-400" />}
+              </button>
+            </div>
             <p className="text-slate-400 mt-2 font-medium">Reassemble the masterpiece.</p>
           </div>
           
@@ -182,13 +260,24 @@ const SlidingPuzzle: React.FC = () => {
                 </div>
               </div>
             </div>
-            <button 
-              onClick={() => initGame(true)}
-              className="p-3 md:p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/10 active:scale-95 group"
-              title="Restart Game"
-            >
-              <RefreshCw className="w-5 h-5 md:w-6 h-6 text-slate-300 group-hover:rotate-180 transition-transform duration-500" />
-            </button>
+            <div className="flex gap-2">
+              <button 
+                onClick={handleAutoSolve}
+                disabled={isSolving || hasWon}
+                className="p-3 md:p-4 bg-indigo-500/20 hover:bg-indigo-500/30 disabled:opacity-30 disabled:cursor-not-allowed rounded-2xl transition-all border border-indigo-500/30 active:scale-95 text-indigo-300"
+                title="AI Solve"
+              >
+                {isSolving ? <Loader2 className="w-5 h-5 md:w-6 h-6 animate-spin" /> : <Brain className="w-5 h-5 md:w-6 h-6" />}
+              </button>
+              <button 
+                onClick={() => initGame(true)}
+                disabled={isSolving}
+                className="p-3 md:p-4 bg-white/5 hover:bg-white/10 disabled:opacity-30 rounded-2xl transition-all border border-white/10 active:scale-95 group"
+                title="Restart Game"
+              >
+                <RefreshCw className={`w-5 h-5 md:w-6 h-6 text-slate-300 group-hover:rotate-180 transition-transform duration-500`} />
+              </button>
+            </div>
           </div>
         </header>
 
@@ -268,18 +357,6 @@ const SlidingPuzzle: React.FC = () => {
                 </motion.div>
               )}
             </div>
-            
-            <button 
-              onMouseDown={() => setShowPreview(true)}
-              onMouseUp={() => setShowPreview(false)}
-              onMouseLeave={() => setShowPreview(false)}
-              onTouchStart={() => setShowPreview(true)}
-              onTouchEnd={() => setShowPreview(false)}
-              className="absolute bottom-4 right-4 z-40 p-3 bg-black/60 backdrop-blur-md rounded-xl border border-white/10 text-white hover:bg-white/10 transition-colors"
-              title="Hold to preview"
-            >
-              {showPreview ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-            </button>
           </div>
 
           {/* Controls Sidebar */}
@@ -292,12 +369,13 @@ const SlidingPuzzle: React.FC = () => {
                 {[3, 4, 5].map((n) => (
                   <button
                     key={n}
+                    disabled={isSolving}
                     onClick={() => setSize({ rows: n, cols: n })}
                     className={`relative overflow-hidden px-6 py-4 rounded-2xl border transition-all text-left group ${
                       size.rows === n 
                         ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-300" 
                         : "border-white/5 bg-white/5 hover:border-white/20 text-slate-400"
-                    }`}
+                    } ${isSolving ? "opacity-30 cursor-not-allowed" : ""}`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-bold">{n}x{n} Grid</span>
@@ -315,10 +393,11 @@ const SlidingPuzzle: React.FC = () => {
               <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                 <Camera className="w-4 h-4" /> Canvas
               </label>
-              <div className="relative group">
+              <div className={`relative group ${isSolving ? "opacity-30 cursor-not-allowed" : ""}`}>
                 <input 
                   type="file" 
                   accept="image/*" 
+                  disabled={isSolving}
                   onChange={handleImageUpload}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
@@ -331,17 +410,31 @@ const SlidingPuzzle: React.FC = () => {
                 </div>
               </div>
               <button
-                onClick={() => setImageUrl(`https://picsum.photos/800/800?t=${Date.now()}`)}
-                className="w-full py-4 text-xs font-black text-indigo-400 uppercase tracking-widest hover:text-indigo-300 transition-colors border border-indigo-500/20 rounded-2xl"
+                disabled={isSolving}
+                onClick={fetchRandomImage}
+                className="w-full py-4 text-xs font-black text-indigo-400 uppercase tracking-widest hover:text-indigo-300 transition-colors border border-indigo-500/20 rounded-2xl disabled:opacity-30"
               >
                 Random Artwork
               </button>
             </section>
 
-            {/* Mini Reference */}
-            <div className="mt-auto">
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Target</p>
-              <div className="relative aspect-square w-32 rounded-xl overflow-hidden border border-white/10">
+            {/* Reference & Preview */}
+            <div className="mt-auto space-y-4">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Target</p>
+                <button 
+                  onMouseDown={() => setShowPreview(true)}
+                  onMouseUp={() => setShowPreview(false)}
+                  onMouseLeave={() => setShowPreview(false)}
+                  onTouchStart={() => setShowPreview(true)}
+                  onTouchEnd={() => setShowPreview(false)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 text-[10px] font-bold uppercase tracking-wider text-slate-300 transition-colors"
+                >
+                  {showPreview ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  Preview
+                </button>
+              </div>
+              <div className="relative aspect-square w-full rounded-xl overflow-hidden border border-white/10 shadow-lg">
                 <img src={imageUrl} alt="Reference" className="w-full h-full object-cover grayscale opacity-40" />
                 <div className="absolute inset-0 bg-indigo-500/10" />
               </div>
