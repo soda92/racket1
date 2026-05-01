@@ -1,7 +1,6 @@
-import { isSolved } from "./gameLogic";
 import type { GridSize } from "./gameLogic";
 
-type Board = number[];
+type Board = Uint8Array;
 
 interface Node {
   board: Board;
@@ -11,7 +10,6 @@ interface Node {
   parent: Node | null;
 }
 
-// Simple Binary Heap implementation for Priority Queue
 class PriorityQueue<T> {
   private heap: T[] = [];
   constructor(private compare: (a: T, b: T) => number) {}
@@ -39,7 +37,7 @@ class PriorityQueue<T> {
   private bubbleUp() {
     let index = this.heap.length - 1;
     while (index > 0) {
-      const parentIndex = Math.floor((index - 1) / 2);
+      const parentIndex = (index - 1) >> 1;
       if (this.compare(this.heap[index], this.heap[parentIndex]) >= 0) break;
       [this.heap[index], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[index]];
       index = parentIndex;
@@ -50,8 +48,8 @@ class PriorityQueue<T> {
     let index = 0;
     while (true) {
       let smallest = index;
-      const leftChild = 2 * index + 1;
-      const rightChild = 2 * index + 2;
+      const leftChild = (index << 1) + 1;
+      const rightChild = (index << 1) + 2;
 
       if (leftChild < this.heap.length && this.compare(this.heap[leftChild], this.heap[smallest]) < 0) {
         smallest = leftChild;
@@ -71,67 +69,58 @@ const getHeuristic = (board: Board, size: GridSize): number => {
   let distance = 0;
   const { rows, cols } = size;
 
-  // Manhattan Distance
   for (let i = 0; i < board.length; i++) {
     const value = board[i];
-    if (value !== -1) {
-      const targetRow = Math.floor(value / cols);
-      const targetCol = value % cols;
-      const currentRow = Math.floor(i / cols);
-      const currentCol = i % cols;
-      distance += Math.abs(targetRow - currentRow) + Math.abs(targetCol - currentCol);
-    }
-  }
+    if (value === 255) continue; // -1 is stored as 255 in Uint8Array
 
-  // Linear Conflict
-  // Rows
-  for (let r = 0; r < rows; r++) {
-    for (let c1 = 0; c1 < cols; c1++) {
-      for (let c2 = c1 + 1; c2 < cols; c2++) {
-        const v1 = board[r * cols + c1];
-        const v2 = board[r * cols + c2];
-        if (v1 !== -1 && v2 !== -1) {
-          const t1r = Math.floor(v1 / cols);
-          const t2r = Math.floor(v2 / cols);
-          const t1c = v1 % cols;
-          const t2c = v2 % cols;
-          if (t1r === r && t2r === r && t1c > t2c) {
-            distance += 2;
-          }
+    const targetRow = (value / cols) | 0;
+    const targetCol = value % cols;
+    const currentRow = (i / cols) | 0;
+    const currentCol = i % cols;
+
+    distance += Math.abs(targetRow - currentRow) + Math.abs(targetCol - currentCol);
+
+    // Linear Conflict (Row)
+    if (targetRow === currentRow) {
+      const rowEnd = (currentRow + 1) * cols;
+      for (let j = i + 1; j < rowEnd; j++) {
+        const value2 = board[j];
+        if (value2 !== 255 && ((value2 / cols) | 0) === currentRow && (value2 % cols) < targetCol) {
+          distance += 2;
+        }
+      }
+    }
+
+    // Linear Conflict (Col)
+    if (targetCol === currentCol) {
+      for (let j = i + cols; j < board.length; j += cols) {
+        const value2 = board[j];
+        if (value2 !== 255 && (value2 % cols) === currentCol && ((value2 / cols) | 0) < targetRow) {
+          distance += 2;
         }
       }
     }
   }
-
-  // Columns
-  for (let c = 0; c < cols; c++) {
-    for (let r1 = 0; r1 < rows; r1++) {
-      for (let r2 = r1 + 1; r2 < rows; r2++) {
-        const v1 = board[r1 * cols + c];
-        const v2 = board[r2 * cols + c];
-        if (v1 !== -1 && v2 !== -1) {
-          const t1c = v1 % cols;
-          const t2c = v2 % cols;
-          const t1r = Math.floor(v1 / cols);
-          const t2r = Math.floor(v2 / cols);
-          if (t1c === c && t2c === c && t1r > t2r) {
-            distance += 2;
-          }
-        }
-      }
-    }
-  }
-
   return distance;
 };
 
-export const solvePuzzle = (initialBoard: Board, size: GridSize): Board[] | null => {
+// Fast board to string key
+const getBoardKey = (board: Board): string => {
+  return String.fromCharCode(...board);
+};
+
+export const solvePuzzle = (initialBoard: number[], size: GridSize): number[][] | null => {
+  const uintBoard = new Uint8Array(initialBoard.map(v => v === -1 ? 255 : v));
   const startEmptyIndex = initialBoard.indexOf(-1);
+  
+  // Weighted A* (W=1.5 or 2.0) often finds solutions much faster for sliding puzzles
+  const WEIGHT = 1.8; 
+
   const startNode: Node = {
-    board: initialBoard,
+    board: uintBoard,
     moves: 0,
     emptyIndex: startEmptyIndex,
-    priority: getHeuristic(initialBoard, size),
+    priority: WEIGHT * getHeuristic(uintBoard, size),
     parent: null,
   };
 
@@ -139,27 +128,34 @@ export const solvePuzzle = (initialBoard: Board, size: GridSize): Board[] | null
   pq.push(startNode);
   
   const closedSet = new Map<string, number>();
-  closedSet.set(initialBoard.join(","), 0);
+  closedSet.set(getBoardKey(uintBoard), 0);
 
   let iterations = 0;
-  // Increase limit for larger grids, but keep a safety bound
-  const MAX_ITERATIONS = size.rows > 3 ? 150000 : 50000;
+  const MAX_ITERATIONS = size.rows > 4 ? 1000000 : 500000;
 
   while (pq.size() > 0 && iterations < MAX_ITERATIONS) {
     iterations++;
     const current = pq.pop()!;
 
-    if (isSolved(current.board)) {
-      const path: Board[] = [];
+    // Check if solved (all tiles in order, last is -1/255)
+    let solved = true;
+    for (let i = 0; i < current.board.length - 1; i++) {
+      if (current.board[i] !== i) {
+        solved = false;
+        break;
+      }
+    }
+    if (solved && current.board[current.board.length - 1] === 255) {
+      const path: number[][] = [];
       let temp: Node | null = current;
       while (temp) {
-        path.unshift(temp.board);
+        path.unshift(Array.from(temp.board).map(v => v === 255 ? -1 : v));
         temp = temp.parent;
       }
       return path.slice(1);
     }
 
-    const row = Math.floor(current.emptyIndex / size.cols);
+    const row = (current.emptyIndex / size.cols) | 0;
     const col = current.emptyIndex % size.cols;
 
     const directions = [
@@ -172,10 +168,11 @@ export const solvePuzzle = (initialBoard: Board, size: GridSize): Board[] | null
 
       if (newRow >= 0 && newRow < size.rows && newCol >= 0 && newCol < size.cols) {
         const newEmptyIndex = newRow * size.cols + newCol;
-        const newBoard = [...current.board];
-        [newBoard[current.emptyIndex], newBoard[newEmptyIndex]] = [newBoard[newEmptyIndex], newBoard[current.emptyIndex]];
+        const newBoard = new Uint8Array(current.board);
+        newBoard[current.emptyIndex] = newBoard[newEmptyIndex];
+        newBoard[newEmptyIndex] = 255;
 
-        const boardKey = newBoard.join(",");
+        const boardKey = getBoardKey(newBoard);
         const newMoves = current.moves + 1;
 
         if (!closedSet.has(boardKey) || closedSet.get(boardKey)! > newMoves) {
@@ -184,7 +181,7 @@ export const solvePuzzle = (initialBoard: Board, size: GridSize): Board[] | null
             board: newBoard,
             moves: newMoves,
             emptyIndex: newEmptyIndex,
-            priority: newMoves + getHeuristic(newBoard, size),
+            priority: newMoves + WEIGHT * getHeuristic(newBoard, size),
             parent: current,
           });
         }
