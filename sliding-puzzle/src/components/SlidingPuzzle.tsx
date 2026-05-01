@@ -82,12 +82,9 @@ const SlidingPuzzle: React.FC = () => {
           <PuzzleControls
             size={size}
             isSolving={isSolving}
-            imageUrl={imageUrl}
-            showPreview={showPreview}
             onSizeChange={setSize}
             onImageUpload={handleImageUpload}
             onRandomImage={fetchRandomImage}
-            onShowPreview={setShowPreview}
           />
         </div>
       </motion.div>

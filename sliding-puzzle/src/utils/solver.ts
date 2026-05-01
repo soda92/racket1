@@ -12,7 +12,11 @@ interface Node {
 
 class PriorityQueue<T> {
   private heap: T[] = [];
-  constructor(private compare: (a: T, b: T) => number) {}
+  private compare: (a: T, b: T) => number;
+
+  constructor(compare: (a: T, b: T) => number) {
+    this.compare = compare;
+  }
 
   push(item: T) {
     this.heap.push(item);
@@ -67,7 +71,7 @@ class PriorityQueue<T> {
 
 const getHeuristic = (board: Board, size: GridSize): number => {
   let distance = 0;
-  const { rows, cols } = size;
+  const { cols } = size;
 
   for (let i = 0; i < board.length; i++) {
     const value = board[i];
