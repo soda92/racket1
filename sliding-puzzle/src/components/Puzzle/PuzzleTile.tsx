@@ -13,9 +13,6 @@ export const PuzzleTile: React.FC<PuzzleTileProps> = ({ tileIndex, imageTile, on
       <motion.div
         layout
         key="empty"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: "spring", stiffness: 400, damping: 35 }}
         className="relative bg-transparent cursor-pointer"
         onClick={onClick}
       />
@@ -26,9 +23,7 @@ export const PuzzleTile: React.FC<PuzzleTileProps> = ({ tileIndex, imageTile, on
     <motion.div
       layout
       key={tileIndex}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: "spring", stiffness: 400, damping: 35 }}
+      transition={{ type: "spring", stiffness: 350, damping: 30 }}
       className="relative cursor-pointer group bg-slate-800"
       onClick={onClick}
     >
