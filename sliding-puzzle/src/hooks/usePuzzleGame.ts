@@ -47,7 +47,6 @@ export function usePuzzleGame() {
       }
 
       try {
-        // Ensure imageUrl is a stable data URL
         let finalUrl = imageUrl;
         if (!imageUrl.startsWith("data:")) {
           finalUrl = await convertToDataUrl(imageUrl);
@@ -63,9 +62,14 @@ export function usePuzzleGame() {
     [size, imageUrl, setGrid, setMoves, setTime, setImageUrl]
   );
 
+  // Use a ref to track initialization
+  const isInitializedRef = useRef(false);
+
   useEffect(() => {
-    if (grid.length === 0 || grid.length !== size.rows * size.cols) {
-      initGame(true);
+    if (!isInitializedRef.current || grid.length !== size.rows * size.cols) {
+      const shouldShuffle = grid.length === 0 || grid.length !== size.rows * size.cols;
+      initGame(shouldShuffle);
+      isInitializedRef.current = true;
     } else {
       initGame(false);
     }
@@ -74,7 +78,6 @@ export function usePuzzleGame() {
 
   useEffect(() => {
     if (hasWon) {
-      setShowSuccessOverlay(true);
       if (successTimeoutRef.current) window.clearTimeout(successTimeoutRef.current);
       successTimeoutRef.current = window.setTimeout(() => {
         setShowSuccessOverlay(false);
@@ -98,6 +101,7 @@ export function usePuzzleGame() {
 
         if (isSolved(newGrid)) {
           setHasWon(true);
+          setShowSuccessOverlay(true);
         }
       }
     },
@@ -124,6 +128,7 @@ export function usePuzzleGame() {
     }
 
     setHasWon(true);
+    setShowSuccessOverlay(true);
     setIsSolving(false);
   };
 
