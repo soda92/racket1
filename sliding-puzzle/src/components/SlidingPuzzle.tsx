@@ -98,21 +98,25 @@ const SlidingPuzzle: React.FC = () => {
         case "ArrowUp":
         case "w":
         case "W":
+          e.preventDefault();
           if (row < size.rows - 1) targetIndex = emptyIndex + size.cols;
           break;
         case "ArrowDown":
         case "s":
         case "S":
+          e.preventDefault();
           if (row > 0) targetIndex = emptyIndex - size.cols;
           break;
         case "ArrowLeft":
         case "a":
         case "A":
+          e.preventDefault();
           if (col < size.cols - 1) targetIndex = emptyIndex + 1;
           break;
         case "ArrowRight":
         case "d":
         case "D":
+          e.preventDefault();
           if (col > 0) targetIndex = emptyIndex - 1;
           break;
       }
@@ -141,7 +145,7 @@ const SlidingPuzzle: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900 via-slate-900 to-black p-4 text-white overflow-hidden">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900 via-slate-900 to-black p-4 text-white">
       {/* Decorative background elements */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
@@ -149,14 +153,14 @@ const SlidingPuzzle: React.FC = () => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-4xl bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl p-6 md:p-10"
+        className="w-full max-w-4xl bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl p-4 md:p-10"
       >
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 border-b border-white/10 pb-8">
           <div>
             <motion.h1 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 tracking-tighter"
+              className="text-3xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 tracking-tighter"
             >
               PIXEL SLIDE
             </motion.h1>
@@ -164,15 +168,15 @@ const SlidingPuzzle: React.FC = () => {
           </div>
           
           <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-6 px-6 py-3 bg-white/5 rounded-2xl border border-white/10">
+            <div className="flex items-center gap-6 px-4 py-2 md:px-6 md:py-3 bg-white/5 rounded-2xl border border-white/10">
               <div className="text-center">
-                <span className="block text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Moves</span>
-                <span className="text-xl font-mono font-bold text-indigo-400">{moves}</span>
+                <span className="block text-[8px] md:text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Moves</span>
+                <span className="text-lg md:text-xl font-mono font-bold text-indigo-400">{moves}</span>
               </div>
               <div className="w-[1px] h-8 bg-white/10" />
               <div className="text-center">
-                <span className="block text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Time</span>
-                <div className="flex items-center gap-2 text-xl font-mono font-bold text-purple-400">
+                <span className="block text-[8px] md:text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Time</span>
+                <div className="flex items-center gap-2 text-lg md:text-xl font-mono font-bold text-purple-400">
                   <Timer className="w-4 h-4" />
                   {formatTime(seconds)}
                 </div>
@@ -180,19 +184,19 @@ const SlidingPuzzle: React.FC = () => {
             </div>
             <button 
               onClick={() => initGame(true)}
-              className="p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/10 active:scale-95 group"
+              className="p-3 md:p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/10 active:scale-95 group"
               title="Restart Game"
             >
-              <RefreshCw className="w-6 h-6 text-slate-300 group-hover:rotate-180 transition-transform duration-500" />
+              <RefreshCw className="w-5 h-5 md:w-6 h-6 text-slate-300 group-hover:rotate-180 transition-transform duration-500" />
             </button>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 md:gap-12">
           {/* Puzzle Board Container */}
-          <div className="relative">
+          <div className="relative w-full max-w-full overflow-hidden">
             <div 
-              className="relative aspect-square bg-black/40 rounded-2xl overflow-hidden border-8 border-white/5 shadow-2xl"
+              className="relative w-full aspect-square bg-black/40 rounded-2xl overflow-hidden border-4 md:border-8 border-white/5 shadow-2xl"
               style={{
                 display: "grid",
                 gridTemplateColumns: `repeat(${size.cols}, 1fr)`,
