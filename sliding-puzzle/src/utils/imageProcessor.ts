@@ -1,5 +1,54 @@
 import type { GridSize } from "./gameLogic";
 
+export type CropArea = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export const cropImage = async (
+  imageSrc: string,
+  crop: CropArea
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const sourceX = (crop.x / 100) * img.width;
+      const sourceY = (crop.y / 100) * img.height;
+      const sourceWidth = (crop.width / 100) * img.width;
+      const sourceHeight = (crop.height / 100) * img.height;
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) {
+        reject(new Error("Could not get canvas context"));
+        return;
+      }
+
+      canvas.width = sourceWidth;
+      canvas.height = sourceHeight;
+
+      ctx.drawImage(
+        img,
+        sourceX,
+        sourceY,
+        sourceWidth,
+        sourceHeight,
+        0,
+        0,
+        sourceWidth,
+        sourceHeight
+      );
+      resolve(canvas.toDataURL("image/webp", 0.9));
+    };
+    img.onerror = reject;
+    img.src = imageSrc;
+  });
+};
+
 export const sliceImage = async (
   imageSrc: string,
   size: GridSize
@@ -10,25 +59,10 @@ export const sliceImage = async (
     img.onload = () => {
       const { rows, cols } = size;
       
-      // Calculate aspect ratios
-      const imgAspect = img.width / img.height;
-      const targetAspect = cols / rows;
-
-      let sourceX = 0;
-      let sourceY = 0;
-      let sourceWidth = img.width;
-      let sourceHeight = img.height;
-
-      // Center crop logic
-      if (imgAspect > targetAspect) {
-        // Image is wider than target - crop sides
-        sourceWidth = img.height * targetAspect;
-        sourceX = (img.width - sourceWidth) / 2;
-      } else if (imgAspect < targetAspect) {
-        // Image is taller than target - crop top/bottom
-        sourceHeight = img.width / targetAspect;
-        sourceY = (img.height - sourceHeight) / 2;
-      }
+      const sourceX = 0;
+      const sourceY = 0;
+      const sourceWidth = img.width;
+      const sourceHeight = img.height;
 
       const tileWidth = sourceWidth / cols;
       const tileHeight = sourceHeight / rows;
@@ -42,9 +76,9 @@ export const sliceImage = async (
         return;
       }
 
-      // Output tiles at a fixed high-ish resolution for quality
-      canvas.width = 300; 
-      canvas.height = 300 * (tileHeight / tileWidth);
+      const targetTileSize = 300;
+      canvas.width = targetTileSize; 
+      canvas.height = targetTileSize * (tileHeight / tileWidth);
 
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {

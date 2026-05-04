@@ -1,13 +1,11 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { LayoutGrid, Camera } from "lucide-react";
+import { Settings, RefreshCw, LayoutGrid } from "lucide-react";
 import type { GridSize } from "../../utils/gameLogic";
 
 interface PuzzleControlsProps {
   size: GridSize;
   isSolving: boolean;
   onSizeChange: (size: GridSize) => void;
-  onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onOpenSetup: () => void;
   onRandomImage: () => void;
 }
 
@@ -15,34 +13,28 @@ export const PuzzleControls: React.FC<PuzzleControlsProps> = ({
   size,
   isSolving,
   onSizeChange,
-  onImageUpload,
+  onOpenSetup,
   onRandomImage,
 }) => {
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <section className="space-y-4">
         <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-          <LayoutGrid className="w-4 h-4" /> Difficulty
+          <LayoutGrid className="w-4 h-4" /> Quick Resolution
         </label>
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           {[3, 4, 5].map((n) => (
             <button
               key={n}
               disabled={isSolving}
               onClick={() => onSizeChange({ rows: n, cols: n })}
-              className={`relative overflow-hidden px-6 py-4 rounded-2xl border transition-all text-left group ${
-                size.rows === n
-                  ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-300"
-                  : "border-white/5 bg-white/5 hover:border-white/20 text-slate-400"
-              } ${isSolving ? "opacity-30 cursor-not-allowed" : ""}`}
+              className={`py-3 rounded-xl border text-xs font-bold transition-all ${
+                size.rows === n && size.cols === n
+                  ? "border-indigo-500 bg-indigo-500/10 text-indigo-300"
+                  : "border-white/5 bg-white/5 hover:border-white/10 text-slate-400"
+              } disabled:opacity-30`}
             >
-              <div className="flex items-center justify-between">
-                <span className="text-lg font-bold">{n}x{n} Grid</span>
-                <span className="text-xs opacity-50 uppercase font-black">{n * n - 1} Pieces</span>
-              </div>
-              {size.rows === n && (
-                <motion.div layoutId="active-bg" className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500" />
-              )}
+              {n}x{n}
             </button>
           ))}
         </div>
@@ -50,32 +42,33 @@ export const PuzzleControls: React.FC<PuzzleControlsProps> = ({
 
       <section className="space-y-4">
         <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-          <Camera className="w-4 h-4" /> Canvas
+          Advanced Actions
         </label>
-        <div className={`relative group ${isSolving ? "opacity-30 cursor-not-allowed" : ""}`}>
-          <input
-            type="file"
-            accept="image/*"
-            disabled={isSolving}
-            onChange={onImageUpload}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-          />
-          <div className="border-2 border-dashed border-white/10 rounded-2xl p-6 text-center group-hover:border-indigo-500/50 transition-all bg-white/5 group-hover:bg-indigo-500/5">
-            <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mx-auto mb-3">
-              <Camera className="w-6 h-6 text-slate-400" />
-            </div>
-            <p className="text-sm text-slate-400 font-bold">Import Image</p>
-            <p className="text-[10px] text-slate-600 uppercase mt-1">JPG, PNG, WEBP</p>
-          </div>
-        </div>
+        <button
+          disabled={isSolving}
+          onClick={onOpenSetup}
+          className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all active:scale-95 group disabled:opacity-50"
+        >
+          <Settings className="w-4 h-4 text-indigo-400 group-hover:rotate-90 transition-transform duration-500" />
+          <span className="text-xs font-black uppercase tracking-widest text-slate-300">Reconfigure Board</span>
+        </button>
+
         <button
           disabled={isSolving}
           onClick={onRandomImage}
-          className="w-full py-4 text-xs font-black text-indigo-400 uppercase tracking-widest hover:text-indigo-300 transition-colors border border-indigo-500/20 rounded-2xl disabled:opacity-30"
+          className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all active:scale-95 group disabled:opacity-50"
         >
-          Random Artwork
+          <RefreshCw className="w-4 h-4 text-purple-400 group-hover:rotate-180 transition-transform duration-700" />
+          <span className="text-xs font-black uppercase tracking-widest text-indigo-300">Fast Randomize</span>
         </button>
       </section>
+      
+      <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
+        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-2">Instructions</p>
+        <p className="text-xs text-slate-400 leading-relaxed">
+          Use arrow keys or click tiles to slide them. Reassemble the image by moving tiles into the empty slot.
+        </p>
+      </div>
     </div>
   );
 };

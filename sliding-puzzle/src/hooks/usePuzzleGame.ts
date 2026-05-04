@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { shuffleGrid, canMove, isSolved, type GridSize } from "../utils/gameLogic";
 import { sliceImage } from "../utils/imageProcessor";
 import { solvePuzzle } from "../utils/solver";
@@ -16,23 +16,6 @@ export function usePuzzleGame() {
   const [isSolving, setIsSolving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  const convertToDataUrl = async (url: string): Promise<string> => {
-    if (url.startsWith("data:")) return url;
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    } catch (err) {
-      console.error("Failed to convert image to data URL", err);
-      return url;
-    }
-  };
-
   const initGame = useCallback(
     async (isNewSession = true) => {
       if (isNewSession) {
@@ -44,19 +27,13 @@ export function usePuzzleGame() {
       }
 
       try {
-        let finalUrl = imageUrl;
-        if (!imageUrl.startsWith("data:")) {
-          finalUrl = await convertToDataUrl(imageUrl);
-          setImageUrl(finalUrl);
-        }
-        
-        const tiles = await sliceImage(finalUrl, size);
+        const tiles = await sliceImage(imageUrl, size);
         setImageTiles(tiles);
       } catch (err) {
         console.error("Failed to slice image", err);
       }
     },
-    [size, imageUrl, setGrid, setMoves, setTime, setImageUrl]
+    [size, imageUrl, setGrid, setMoves, setTime]
   );
 
   // Use a ref to track initialization
@@ -115,36 +92,6 @@ export function usePuzzleGame() {
     setIsSolving(false);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        setImageUrl(base64);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const fetchRandomImage = async () => {
-    setIsSolving(true);
-    try {
-      const response = await fetch(`https://picsum.photos/800/800?t=${Date.now()}`);
-      const blob = await response.blob();
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        setImageUrl(base64);
-        setIsSolving(false);
-      };
-      reader.readAsDataURL(blob);
-    } catch (err) {
-      console.error("Failed to fetch random image", err);
-      setIsSolving(false);
-    }
-  };
-
   // Keyboard controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -197,7 +144,9 @@ export function usePuzzleGame() {
     setSize,
     grid,
     moves,
+    setMoves,
     imageUrl,
+    setImageUrl,
     time,
     setTime,
     imageTiles,
@@ -208,7 +157,5 @@ export function usePuzzleGame() {
     initGame,
     handleTileClick,
     handleAutoSolve,
-    handleImageUpload,
-    fetchRandomImage,
   };
 }

@@ -4,6 +4,7 @@ import { EyeOff, Eye } from "lucide-react";
 import confetti from "canvas-confetti";
 import { PuzzleTile } from "./PuzzleTile";
 import type { GridSize } from "../../utils/gameLogic";
+
 interface PuzzleBoardProps {
   grid: number[];
   size: GridSize;
@@ -56,12 +57,13 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     <div className="flex flex-col gap-6 w-full">
       <div className="relative w-full max-w-full overflow-hidden shadow-2xl rounded-3xl border-4 md:border-8 border-white/5 bg-slate-900/50">
         <div
-          className="relative w-full aspect-square overflow-hidden"
+          className="relative w-full overflow-hidden"
           style={{
             display: "grid",
             gridTemplateColumns: `repeat(${size.cols}, 1fr)`,
             gridTemplateRows: `repeat(${size.rows}, 1fr)`,
             gap: "1px",
+            aspectRatio: `${size.cols} / ${size.rows}`,
           }}
         >
           {/* Always show the grid or the full image based on hasWon */}
@@ -85,7 +87,11 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
               }}
               className="absolute inset-0 w-full h-full"
             >
-              <img src={imageUrl} alt="Completed" className="w-full h-full object-cover" />
+              <img 
+                src={imageUrl} 
+                alt="Completed" 
+                className="w-full h-full object-cover" 
+              />
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: [0, 0.3, 0] }}
@@ -104,7 +110,11 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 z-20 pointer-events-none"
               >
-                <img src={imageUrl} alt="Reference" className="w-full h-full object-cover opacity-60" />
+                <img 
+                  src={imageUrl} 
+                  alt="Reference" 
+                  className="w-full h-full object-cover opacity-60" 
+                />
                 <div className="absolute inset-0 bg-indigo-900/20 backdrop-blur-[2px]" />
               </motion.div>
             )}
