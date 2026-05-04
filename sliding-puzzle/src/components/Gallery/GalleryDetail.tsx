@@ -100,7 +100,7 @@ export const GalleryDetail: React.FC<GalleryDetailProps> = ({ gallery, onBack, o
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Total Levels</span>
               <span className="text-2xl font-black text-white">{gallery.levels.length}</span>
             </div>
-            <div className="w-[1px] h-10 bg-white/10" />
+            <div className="w-px10 bg-white/10" />
             <div className="flex flex-col">
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Solved</span>
               <span className="text-2xl font-black text-indigo-400">{Object.keys(progress).length}</span>
@@ -108,7 +108,7 @@ export const GalleryDetail: React.FC<GalleryDetailProps> = ({ gallery, onBack, o
           </div>
         </div>
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-20 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-l from-slate-950 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-l from-slate-950 to-transparent" />
           <img src={gallery.coverUrl} className="w-full h-full object-cover" alt="" />
         </div>
       </div>
@@ -122,7 +122,7 @@ export const GalleryDetail: React.FC<GalleryDetailProps> = ({ gallery, onBack, o
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="group relative bg-white/5 rounded-[2rem] border border-white/10 overflow-hidden hover:border-indigo-500/50 transition-all"
+              className="group relative bg-white/5 rounded-4xl border border-white/10 overflow-hidden hover:border-indigo-500/50 transition-all"
             >
               <div className="aspect-square relative overflow-hidden">
                 <img
@@ -132,7 +132,7 @@ export const GalleryDetail: React.FC<GalleryDetailProps> = ({ gallery, onBack, o
                   } group-hover:scale-110`}
                   alt={level.title}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-transparent to-transparent" />
                 
                 {!state && (
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -182,7 +182,7 @@ export const GalleryDetail: React.FC<GalleryDetailProps> = ({ gallery, onBack, o
 
                 <button
                   onClick={() => onPlayLevel(level)}
-                  className="w-full py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2 group-hover:bg-indigo-500 group-hover:border-indigo-500 transition-all duration-300"
+                  className="w-full py-4 rounded-xl bg-red-500 hover:bg-white/10 border border-white/10 text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2 group-hover:bg-indigo-500 group-hover:border-indigo-500 duration-300"
                 >
                   <Play className="w-3 h-3 fill-current" /> {state ? "Replay Puzzle" : "Solve Puzzle"}
                 </button>

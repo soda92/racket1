@@ -114,7 +114,7 @@ export const WinOverlay: React.FC<WinOverlayProps> = ({
                   {onNextLevel && (
                     <button
                       onClick={onNextLevel}
-                      className="w-full flex items-center justify-center gap-3 py-4 md:py-5 rounded-xl md:rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all font-black text-[10px] md:text-xs uppercase tracking-widest active:scale-95 shadow-xl shadow-indigo-500/20"
+                      className="w-full flex items-center justify-center gap-3 py-4 md:py-5 rounded-xl md:rounded-2xl bg-linear-to-r from-indigo-500 to-purple-600 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all font-black text-[10px] md:text-xs uppercase tracking-widest active:scale-95 shadow-xl shadow-indigo-500/20"
                     >
                       <Play className="w-4 h-4 md:w-5 md:h-5 fill-current" /> Next Level
                     </button>

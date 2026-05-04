@@ -273,12 +273,12 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
         </div>
       </div>
 
-      <div className="w-full lg:w-[350px] space-y-8">
+      <div className="w-full lg:w-87.5 space-y-8">
         <section className="space-y-6">
           <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
             <LayoutGrid className="w-4 h-4" /> Grid Resolution
           </label>
-          <div className="space-y-8 p-6 bg-white/5 rounded-[2rem] border border-white/10">
+          <div className="space-y-8 p-6 bg-white/5 rounded-4xl border border-white/10">
             <div className="space-y-4">
               <div className="flex justify-between items-end">
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Rows</span>
@@ -332,7 +332,7 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
           <button
             onClick={handleApply}
             disabled={isProcessing}
-            className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-500 to-purple-600 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all active:scale-95 disabled:opacity-50"
+            className="flex-1 flex items-center justify-center gap-3 bg-linear-to-r from-indigo-500 to-purple-600 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all active:scale-95 disabled:opacity-50"
           >
             <Check className="w-4 h-4" /> Generate Puzzle
           </button>
