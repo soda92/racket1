@@ -9,6 +9,7 @@ interface PuzzleBoardProps {
   imageTiles: string[];
   imageUrl: string;
   showPreview: boolean;
+  showNumbers: boolean;
   hasWon: boolean;
   onTileClick: (index: number) => void;
   onShowPreview: (show: boolean) => void;
@@ -20,6 +21,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   imageTiles,
   imageUrl,
   showPreview,
+  showNumbers,
   hasWon,
   onTileClick,
   onShowPreview,
@@ -47,6 +49,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                   ? size.rows * size.cols - 1
                   : tileIndex
               ]}
+              showNumbers={showNumbers}
               onClick={() => onTileClick(posIndex)}
             />
           ))}

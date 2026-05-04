@@ -4,11 +4,12 @@ import { motion } from "framer-motion";
 interface PuzzleTileProps {
   tileIndex: number;
   imageTile: string;
+  showNumbers?: boolean;
   onClick: () => void;
 }
 
 export const PuzzleTile: React.FC<PuzzleTileProps> = (
-  { tileIndex, imageTile, onClick },
+  { tileIndex, imageTile, showNumbers, onClick },
 ) => {
   if (tileIndex === -1) {
     return (
@@ -36,6 +37,13 @@ export const PuzzleTile: React.FC<PuzzleTileProps> = (
             alt={`Tile ${tileIndex}`}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
+          {showNumbers && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span className="text-white text-lg md:text-2xl font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] opacity-70 group-hover:opacity-100 transition-opacity">
+                {tileIndex + 1}
+              </span>
+            </div>
+          )}
           <div className="absolute inset-0 border border-white/5 group-hover:border-white/20 transition-colors" />
         </>
       )}

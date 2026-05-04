@@ -1,10 +1,12 @@
-import { LayoutGrid, RefreshCw, Settings } from "lucide-react";
+import { Hash, LayoutGrid, RefreshCw, Settings } from "lucide-react";
 import type { GridSize } from "../../utils/gameLogic.ts";
 
 interface PuzzleControlsProps {
   size: GridSize;
   isSolving: boolean;
+  showNumbers: boolean;
   onSizeChange: (size: GridSize) => void;
+  onToggleNumbers: (show: boolean) => void;
   onOpenSetup: () => void;
   onRandomImage: () => void;
 }
@@ -12,7 +14,9 @@ interface PuzzleControlsProps {
 export const PuzzleControls: React.FC<PuzzleControlsProps> = ({
   size,
   isSolving,
+  showNumbers,
   onSizeChange,
+  onToggleNumbers,
   onOpenSetup,
   onRandomImage,
 }) => {
@@ -45,6 +49,22 @@ export const PuzzleControls: React.FC<PuzzleControlsProps> = ({
         <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
           Advanced Actions
         </label>
+        
+        <button
+          type="button"
+          onClick={() => onToggleNumbers(!showNumbers)}
+          className={`w-full flex items-center justify-center gap-3 py-4 rounded-2xl border transition-all active:scale-95 group ${
+            showNumbers
+              ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-300"
+              : "border-white/10 bg-white/5 hover:bg-white/10 text-slate-300"
+          }`}
+        >
+          <Hash className={`w-4 h-4 ${showNumbers ? "text-indigo-400" : "text-slate-500"}`} />
+          <span className="text-xs font-black uppercase tracking-widest">
+            {showNumbers ? "Hide Numbers" : "Show Numbers"}
+          </span>
+        </button>
+
         <button
           type="button"
           disabled={isSolving}

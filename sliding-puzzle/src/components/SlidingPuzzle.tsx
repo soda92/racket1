@@ -28,6 +28,8 @@ const SlidingPuzzle: React.FC = () => {
     "https://picsum.photos/1200/800",
   );
 
+  const [showNumbers, setShowNumbers] = useState(false);
+
   const {
     grid,
     moves,
@@ -315,6 +317,7 @@ const SlidingPuzzle: React.FC = () => {
                   imageTiles={imageTiles}
                   imageUrl={imageUrl}
                   showPreview={showPreview}
+                  showNumbers={showNumbers}
                   hasWon={hasWon}
                   onTileClick={handleTileClick}
                   onShowPreview={setShowPreview}
@@ -323,7 +326,9 @@ const SlidingPuzzle: React.FC = () => {
                 <PuzzleControls
                   size={size}
                   isSolving={isSolving}
+                  showNumbers={showNumbers}
                   onSizeChange={setSize}
+                  onToggleNumbers={setShowNumbers}
                   onOpenSetup={() => setView("setup")}
                   onRandomImage={handleFastRandomize}
                 />

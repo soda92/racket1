@@ -155,27 +155,39 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = (
     }
   };
 
-  const onMouseDown = (
-    e: React.MouseEvent,
+  const onStart = (
+    e: React.MouseEvent | React.TouchEvent,
     type: "move" | "resize",
     handle?: "tl" | "tr" | "bl" | "br",
   ) => {
     e.stopPropagation();
+    
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+
     setDragState({
       type,
       handle,
-      startX: e.clientX,
-      startY: e.clientY,
+      startX: clientX,
+      startY: clientY,
       startCrop: { ...crop },
     });
   };
 
-  const onMouseMove = useCallback((e: MouseEvent) => {
+  const onMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!dragState || !containerRef.current) return;
 
+    // Prevent scrolling when dragging on mobile
+    if (e.type === "touchmove") {
+      e.preventDefault();
+    }
+
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+
     const rect = containerRef.current.getBoundingClientRect();
-    const dx = ((e.clientX - dragState.startX) / rect.width) * 100;
-    const dy = ((e.clientY - dragState.startY) / rect.height) * 100;
+    const dx = ((clientX - dragState.startX) / rect.width) * 100;
+    const dy = ((clientY - dragState.startY) / rect.height) * 100;
 
     const newCrop = { ...dragState.startCrop };
 
@@ -262,20 +274,24 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = (
     setCrop(newCrop);
   }, [dragState]);
 
-  const onMouseUp = useCallback(() => {
+  const onEnd = useCallback(() => {
     setDragState(null);
   }, []);
 
   useEffect(() => {
     if (dragState) {
-      globalThis.addEventListener("mousemove", onMouseMove);
-      globalThis.addEventListener("mouseup", onMouseUp);
+      globalThis.addEventListener("mousemove", onMove);
+      globalThis.addEventListener("mouseup", onEnd);
+      globalThis.addEventListener("touchmove", onMove, { passive: false });
+      globalThis.addEventListener("touchend", onEnd);
     }
     return () => {
-      globalThis.removeEventListener("mousemove", onMouseMove);
-      globalThis.removeEventListener("mouseup", onMouseUp);
+      globalThis.removeEventListener("mousemove", onMove);
+      globalThis.removeEventListener("mouseup", onEnd);
+      globalThis.removeEventListener("touchmove", onMove);
+      globalThis.removeEventListener("touchend", onEnd);
     };
-  }, [dragState, onMouseMove, onMouseUp]);
+  }, [dragState, onMove, onEnd]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 w-full max-w-6xl mx-auto select-none">
@@ -316,7 +332,8 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = (
                 width: `${crop.width}%`,
                 height: `${crop.height}%`,
               }}
-              onMouseDown={(e) => onMouseDown(e, "move")}
+              onMouseDown={(e) => onStart(e, "move")}
+              onTouchStart={(e) => onStart(e, "move")}
             >
               {/* Aspect-Correct Result Overlay */}
               <div
@@ -362,19 +379,23 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = (
 
               <div
                 className="absolute -top-2 -left-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nwse-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20"
-                onMouseDown={(e) => onMouseDown(e, "resize", "tl")}
+                onMouseDown={(e) => onStart(e, "resize", "tl")}
+                onTouchStart={(e) => onStart(e, "resize", "tl")}
               />
               <div
                 className="absolute -top-2 -right-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nesw-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20"
-                onMouseDown={(e) => onMouseDown(e, "resize", "tr")}
+                onMouseDown={(e) => onStart(e, "resize", "tr")}
+                onTouchStart={(e) => onStart(e, "resize", "tr")}
               />
               <div
                 className="absolute -bottom-2 -left-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nesw-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20"
-                onMouseDown={(e) => onMouseDown(e, "resize", "bl")}
+                onMouseDown={(e) => onStart(e, "resize", "bl")}
+                onTouchStart={(e) => onStart(e, "resize", "bl")}
               />
               <div
                 className="absolute -bottom-2 -right-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nwse-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20"
-                onMouseDown={(e) => onMouseDown(e, "resize", "br")}
+                onMouseDown={(e) => onStart(e, "resize", "br")}
+                onTouchStart={(e) => onStart(e, "resize", "br")}
               />
             </div>
           </div>
