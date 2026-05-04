@@ -7,6 +7,7 @@ import { PuzzleHeader } from "./Puzzle/PuzzleHeader";
 import { PuzzleBoard } from "./Puzzle/PuzzleBoard";
 import { PuzzleControls } from "./Puzzle/PuzzleControls";
 import { ImagePreparer } from "./ImagePreparer";
+import { WinOverlay } from "./Puzzle/WinOverlay";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
 const SlidingPuzzle: React.FC = () => {
@@ -149,6 +150,21 @@ const SlidingPuzzle: React.FC = () => {
           )}
         </AnimatePresence>
       </motion.div>
+
+      <AnimatePresence>
+        {hasWon && (
+          <WinOverlay
+            moves={moves}
+            timeFormatted={formatTime(seconds)}
+            sourceImageUrl={sourceImageUrl}
+            onRestart={() => initGame(true)}
+            onNewGame={() => {
+              setShowSetup(true);
+              initGame(true); // Reset game state but show setup
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

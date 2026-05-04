@@ -26,33 +26,6 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   onTileClick,
   onShowPreview,
 }) => {
-  // Trigger confetti on win
-  useEffect(() => {
-    if (hasWon) {
-      const duration = 3 * 1000;
-      const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 50 };
-
-      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-      const interval = setInterval(function() {
-        const timeLeft = animationEnd - Date.now();
-
-        if (timeLeft <= 0) {
-          clearInterval(interval);
-          return;
-        }
-
-        const particleCount = 50 * (timeLeft / duration);
-        // since particles fall down, start a bit higher than random
-        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-      }, 250);
-
-      return () => clearInterval(interval);
-    }
-  }, [hasWon]);
-
   return (
     <div className="flex flex-col gap-6 w-full">
       <div className="relative w-full max-w-full overflow-hidden shadow-2xl rounded-3xl border-4 md:border-8 border-white/5 bg-slate-900/50">
@@ -66,40 +39,15 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
             aspectRatio: `${size.cols} / ${size.rows}`,
           }}
         >
-          {/* Always show the grid or the full image based on hasWon */}
-          {!hasWon ? (
-            grid.map((tileIndex, posIndex) => (
-              <PuzzleTile
-                key={tileIndex === -1 ? "empty" : tileIndex}
-                tileIndex={tileIndex}
-                imageTile={imageTiles[tileIndex]}
-                onClick={() => onTileClick(posIndex)}
-              />
-            ))
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, filter: "blur(20px)", scale: 1.05 }}
-              animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
-              transition={{ 
-                duration: 2.5, 
-                ease: [0.16, 1, 0.3, 1], // Cinematic out-expo style
-                delay: 0.1
-              }}
-              className="absolute inset-0 w-full h-full"
-            >
-              <img 
-                src={imageUrl} 
-                alt="Completed" 
-                className="w-full h-full object-cover" 
-              />
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 0.3, 0] }}
-                transition={{ duration: 2, times: [0, 0.5, 1], delay: 0.3 }}
-                className="absolute inset-0 bg-white mix-blend-overlay pointer-events-none"
-              />
-            </motion.div>
-          )}
+          {/* Always show the grid. When won, the empty tile is replaced by the last tile index */}
+          {grid.map((tileIndex, posIndex) => (
+            <PuzzleTile
+              key={tileIndex === -1 ? "empty" : tileIndex}
+              tileIndex={tileIndex}
+              imageTile={imageTiles[tileIndex === -1 && hasWon ? size.rows * size.cols - 1 : tileIndex]}
+              onClick={() => onTileClick(posIndex)}
+            />
+          ))}
 
           {/* Preview Overlay */}
           <AnimatePresence>

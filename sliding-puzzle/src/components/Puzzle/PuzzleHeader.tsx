@@ -32,7 +32,7 @@ export const PuzzleHeader: React.FC<PuzzleHeaderProps> = ({
             animate={{ opacity: 1, x: 0 }}
             className="text-3xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 tracking-tighter"
           >
-            PIXEL SLIDE
+            SLIDING PUZZLE
           </motion.h1>
           <button
             onClick={onToggleFullscreen}
