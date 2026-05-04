@@ -61,11 +61,11 @@ export const WinOverlay: React.FC<WinOverlayProps> = ({
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-                className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-tr from-yellow-400 to-orange-500 shadow-lg shadow-orange-500/20 mb-4"
+                className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-linear-to-tr from-yellow-400 to-orange-500 shadow-lg shadow-orange-500/20 mb-4"
               >
                 <Trophy className="w-8 h-8 md:w-10 md:h-10 text-white" />
               </motion.div>
-              <h2 className="text-3xl md:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 tracking-tighter mb-2">
+              <h2 className="text-3xl md:text-6xl font-black bg-clip-text text-transparent bg-linear-to-r from-indigo-400 via-purple-400 to-pink-400 tracking-tighter mb-2">
                 MASTERPIECE RESTORED!
               </h2>
               <p className="text-slate-400 text-sm md:text-base font-medium">You solved the puzzle with precision and style.</p>
@@ -77,7 +77,7 @@ export const WinOverlay: React.FC<WinOverlayProps> = ({
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 }}
-                className="relative rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/10 aspect-auto bg-slate-900 flex items-center justify-center"
+                className="relative rounded-3xl md:rounded-4xl overflow-hidden shadow-2xl border-4 border-white/10 aspect-auto bg-slate-900 flex items-center justify-center"
               >
                 <img
                   src={sourceImageUrl}

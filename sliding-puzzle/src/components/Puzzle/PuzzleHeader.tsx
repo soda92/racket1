@@ -30,7 +30,7 @@ export const PuzzleHeader: React.FC<PuzzleHeaderProps> = ({
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-3xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 tracking-tighter"
+            className="text-3xl md:text-5xl font-black bg-clip-text text-transparent bg-linear-to-r from-indigo-400 to-purple-400 tracking-tighter"
           >
             SLIDING PUZZLE
           </motion.h1>
@@ -57,7 +57,7 @@ export const PuzzleHeader: React.FC<PuzzleHeaderProps> = ({
             </span>
             <span className="text-lg md:text-xl font-mono font-bold text-indigo-400">{moves}</span>
           </div>
-          <div className="w-[1px] h-8 bg-white/10" />
+          <div className="w-px h-8 bg-white/10" />
           <div className="text-center">
             <span className="block text-[8px] md:text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">
               Time
@@ -76,9 +76,9 @@ export const PuzzleHeader: React.FC<PuzzleHeaderProps> = ({
             title="AI Solve"
           >
             {isSolving ? (
-              <Loader2 className="w-5 h-5 md:w-6 h-6 animate-spin" />
+              <Loader2 className="w-5 h-5 md:w-6 animate-spin" />
             ) : (
-              <Brain className="w-5 h-5 md:w-6 h-6" />
+              <Brain className="w-5 h-5 md:w-6" />
             )}
           </button>
           <button
@@ -88,7 +88,7 @@ export const PuzzleHeader: React.FC<PuzzleHeaderProps> = ({
             title="Restart Game"
           >
             <RefreshCw
-              className={`w-5 h-5 md:w-6 h-6 text-slate-300 group-hover:rotate-180 transition-transform duration-500`}
+              className={`w-5 h-5 md:w-6 text-slate-300 group-hover:rotate-180 transition-transform duration-500`}
             />
           </button>
         </div>

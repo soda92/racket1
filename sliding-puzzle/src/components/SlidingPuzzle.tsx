@@ -76,7 +76,7 @@ const SlidingPuzzle: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="relative overflow-x-hidden flex flex-col items-center justify-center min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900 via-slate-900 to-black p-4 text-white"
+      className="relative overflow-x-hidden flex flex-col items-center justify-center min-h-screen bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-indigo-900 via-slate-900 to-black p-4 text-white"
     >
       {/* Decorative background elements */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
@@ -95,7 +95,7 @@ const SlidingPuzzle: React.FC = () => {
               exit={{ opacity: 0, scale: 0.95 }}
             >
               <div className="mb-10 border-b border-white/10 pb-8">
-                <h2 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 tracking-tighter">PREPARE YOUR PUZZLE</h2>
+                <h2 className="text-3xl font-black bg-clip-text text-transparent bg-linear-to-r from-indigo-400 to-purple-400 tracking-tighter">PREPARE YOUR PUZZLE</h2>
                 <p className="text-slate-400 mt-1">Select an image and configure your challenge.</p>
               </div>
               <ImagePreparer 
