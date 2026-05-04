@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Trophy, Timer, Hash, RefreshCw, Image as ImageIcon } from "lucide-react";
+import { Trophy, Timer, Hash, RefreshCw, Image as ImageIcon, Play } from "lucide-react";
 import confetti from "canvas-confetti";
 
 interface WinOverlayProps {
@@ -9,6 +9,7 @@ interface WinOverlayProps {
   sourceImageUrl: string;
   onRestart: () => void;
   onNewGame: () => void;
+  onNextLevel?: () => void;
 }
 
 export const WinOverlay: React.FC<WinOverlayProps> = ({
@@ -17,6 +18,7 @@ export const WinOverlay: React.FC<WinOverlayProps> = ({
   sourceImageUrl,
   onRestart,
   onNewGame,
+  onNextLevel,
 }) => {
   useEffect(() => {
     const duration = 5 * 1000;
@@ -109,17 +111,25 @@ export const WinOverlay: React.FC<WinOverlayProps> = ({
                 </div>
 
                 <div className="flex flex-col gap-3 mt-2 md:mt-auto">
+                  {onNextLevel && (
+                    <button
+                      onClick={onNextLevel}
+                      className="w-full flex items-center justify-center gap-3 py-4 md:py-5 rounded-xl md:rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all font-black text-[10px] md:text-xs uppercase tracking-widest active:scale-95 shadow-xl shadow-indigo-500/20"
+                    >
+                      <Play className="w-4 h-4 md:w-5 md:h-5 fill-current" /> Next Level
+                    </button>
+                  )}
                   <button
                     onClick={onRestart}
-                    className="w-full flex items-center justify-center gap-3 py-4 md:py-5 rounded-xl md:rounded-2xl bg-indigo-500 hover:bg-indigo-600 transition-all font-black text-[10px] md:text-xs uppercase tracking-widest shadow-xl shadow-indigo-500/20 active:scale-95"
+                    className="w-full flex items-center justify-center gap-3 py-4 md:py-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 transition-all font-black text-[10px] md:text-xs uppercase tracking-widest active:scale-95 border border-white/10"
                   >
                     <RefreshCw className="w-4 h-4 md:w-5 md:h-5" /> Play Again
                   </button>
                   <button
                     onClick={onNewGame}
-                    className="w-full flex items-center justify-center gap-3 py-4 md:py-5 rounded-xl md:rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all font-black text-[10px] md:text-xs uppercase tracking-widest active:scale-95 text-slate-300"
+                    className="w-full flex items-center justify-center gap-3 py-4 md:py-5 rounded-xl md:rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all font-black text-[10px] md:text-xs uppercase tracking-widest active:scale-95 text-slate-400"
                   >
-                    <ImageIcon className="w-4 h-4 md:w-5 md:h-5" /> New Puzzle
+                    <ImageIcon className="w-4 h-4 md:w-5 md:h-5" /> Gallery
                   </button>
                 </div>
               </motion.div>
