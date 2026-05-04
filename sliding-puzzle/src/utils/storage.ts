@@ -3,7 +3,7 @@ import localforage from "localforage";
 // Initialize localforage
 localforage.config({
   name: "sliding-puzzle",
-  storeName: "puzzle_data"
+  storeName: "puzzle_data",
 });
 
 export interface LevelProgress {
@@ -15,7 +15,7 @@ export interface LevelProgress {
 const KEYS = {
   PROGRESS: (levelId: string) => `progress_${levelId}`,
   ASSET: (imageUrl: string) => `asset_${imageUrl}`,
-  GALLERY_DOWNLOADED: (galleryId: string) => `gallery_downloaded_${galleryId}`
+  GALLERY_DOWNLOADED: (galleryId: string) => `gallery_downloaded_${galleryId}`,
 };
 
 export const storage = {
@@ -26,14 +26,14 @@ export const storage = {
       const updated = {
         solved: true,
         bestMoves: Math.min(existing.bestMoves, progress.bestMoves),
-        bestTime: Math.min(existing.bestTime, progress.bestTime)
+        bestTime: Math.min(existing.bestTime, progress.bestTime),
       };
       return localforage.setItem(KEYS.PROGRESS(levelId), updated);
     }
     return localforage.setItem(KEYS.PROGRESS(levelId), progress);
   },
 
-  getProgress: async (levelId: string): Promise<LevelProgress | null> => {
+  getProgress: (levelId: string): Promise<LevelProgress | null> => {
     return localforage.getItem<LevelProgress>(KEYS.PROGRESS(levelId));
   },
 
@@ -67,11 +67,13 @@ export const storage = {
   },
 
   // Gallery State
-  setGalleryDownloaded: async (galleryId: string, downloaded: boolean) => {
+  setGalleryDownloaded: (galleryId: string, downloaded: boolean) => {
     return localforage.setItem(KEYS.GALLERY_DOWNLOADED(galleryId), downloaded);
   },
 
   isGalleryDownloaded: async (galleryId: string): Promise<boolean> => {
-    return (await localforage.getItem<boolean>(KEYS.GALLERY_DOWNLOADED(galleryId))) || false;
-  }
+    return (await localforage.getItem<boolean>(
+      KEYS.GALLERY_DOWNLOADED(galleryId),
+    )) || false;
+  },
 };

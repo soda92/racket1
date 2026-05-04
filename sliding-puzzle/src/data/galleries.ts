@@ -24,21 +24,21 @@ export const GALLERIES: Gallery[] = [
         id: "mountains-1",
         title: "Purple Peaks",
         imageUrl: "https://picsum.photos/id/10/1200/800",
-        defaultSize: { rows: 3, cols: 3 }
+        defaultSize: { rows: 3, cols: 3 },
       },
       {
         id: "forest-1",
         title: "Eternal Grove",
         imageUrl: "https://picsum.photos/id/28/1200/800",
-        defaultSize: { rows: 3, cols: 3 }
+        defaultSize: { rows: 3, cols: 3 },
       },
       {
         id: "lake-1",
         title: "Mirror Lake",
         imageUrl: "https://picsum.photos/id/46/1200/800",
-        defaultSize: { rows: 4, cols: 4 }
-      }
-    ]
+        defaultSize: { rows: 4, cols: 4 },
+      },
+    ],
   },
   {
     id: "natures-patterns",
@@ -50,20 +50,20 @@ export const GALLERIES: Gallery[] = [
         id: "leaf-1",
         title: "Veins of Life",
         imageUrl: "https://picsum.photos/id/11/1200/800",
-        defaultSize: { rows: 3, cols: 3 }
+        defaultSize: { rows: 3, cols: 3 },
       },
       {
         id: "stone-1",
         title: "Crystalline Path",
         imageUrl: "https://picsum.photos/id/12/1200/800",
-        defaultSize: { rows: 4, cols: 4 }
+        defaultSize: { rows: 4, cols: 4 },
       },
       {
         id: "water-1",
         title: "Ripple Theory",
         imageUrl: "https://picsum.photos/id/15/1200/800",
-        defaultSize: { rows: 5, cols: 5 }
-      }
-    ]
-  }
+        defaultSize: { rows: 5, cols: 5 },
+      },
+    ],
+  },
 ];

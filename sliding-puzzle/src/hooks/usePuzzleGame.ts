@@ -1,14 +1,25 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { shuffleGrid, canMove, isSolved, type GridSize } from "../utils/gameLogic.ts";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  canMove,
+  type GridSize,
+  isSolved,
+  shuffleGrid,
+} from "../utils/gameLogic.ts";
 import { sliceImage } from "../utils/imageProcessor.ts";
 import { solvePuzzle } from "../utils/solver.ts";
 import { useLocalStorage } from "./useLocalStorage.ts";
 
 export function usePuzzleGame() {
-  const [size, setSize] = useLocalStorage<GridSize>("puzzle-size", { rows: 4, cols: 4 });
+  const [size, setSize] = useLocalStorage<GridSize>("puzzle-size", {
+    rows: 4,
+    cols: 4,
+  });
   const [grid, setGrid] = useLocalStorage<number[]>("puzzle-grid", []);
   const [moves, setMoves] = useLocalStorage<number>("puzzle-moves", 0);
-  const [imageUrl, setImageUrl] = useLocalStorage<string>("puzzle-image", "https://picsum.photos/800/800");
+  const [imageUrl, setImageUrl] = useLocalStorage<string>(
+    "puzzle-image",
+    "https://picsum.photos/800/800",
+  );
   const [time, setTime] = useLocalStorage<number>("puzzle-time", 0);
 
   const [imageTiles, setImageTiles] = useState<string[]>([]);
@@ -33,7 +44,7 @@ export function usePuzzleGame() {
         console.error("Failed to slice image", err);
       }
     },
-    [size, imageUrl, setGrid, setMoves, setTime]
+    [size, imageUrl, setGrid, setMoves, setTime],
   );
 
   // Use a ref to track initialization
@@ -41,7 +52,8 @@ export function usePuzzleGame() {
 
   useEffect(() => {
     if (!isInitializedRef.current || grid.length !== size.rows * size.cols) {
-      const shouldShuffle = grid.length === 0 || grid.length !== size.rows * size.cols;
+      const shouldShuffle = grid.length === 0 ||
+        grid.length !== size.rows * size.cols;
       initGame(shouldShuffle);
       isInitializedRef.current = true;
     } else {
@@ -57,7 +69,10 @@ export function usePuzzleGame() {
       const emptyIndex = grid.indexOf(-1);
       if (canMove(index, emptyIndex, size)) {
         const newGrid = [...grid];
-        [newGrid[index], newGrid[emptyIndex]] = [newGrid[emptyIndex], newGrid[index]];
+        [newGrid[index], newGrid[emptyIndex]] = [
+          newGrid[emptyIndex],
+          newGrid[index],
+        ];
         setGrid(newGrid);
         setMoves((m) => m + 1);
 
@@ -66,7 +81,7 @@ export function usePuzzleGame() {
         }
       }
     },
-    [grid, hasWon, size, isSolving, setGrid, setMoves]
+    [grid, hasWon, size, isSolving, setGrid, setMoves],
   );
 
   const handleAutoSolve = async () => {

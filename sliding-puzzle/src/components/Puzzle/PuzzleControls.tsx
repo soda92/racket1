@@ -1,4 +1,4 @@
-import { Settings, RefreshCw, LayoutGrid } from "lucide-react";
+import { LayoutGrid, RefreshCw, Settings } from "lucide-react";
 import type { GridSize } from "../../utils/gameLogic.ts";
 
 interface PuzzleControlsProps {
@@ -25,6 +25,7 @@ export const PuzzleControls: React.FC<PuzzleControlsProps> = ({
         <div className="grid grid-cols-3 gap-2">
           {[3, 4, 5].map((n) => (
             <button
+              type="button"
               key={n}
               disabled={isSolving}
               onClick={() => onSizeChange({ rows: n, cols: n })}
@@ -45,28 +46,37 @@ export const PuzzleControls: React.FC<PuzzleControlsProps> = ({
           Advanced Actions
         </label>
         <button
+          type="button"
           disabled={isSolving}
           onClick={onOpenSetup}
           className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all active:scale-95 group disabled:opacity-50"
         >
           <Settings className="w-4 h-4 text-indigo-400 group-hover:rotate-90 transition-transform duration-500" />
-          <span className="text-xs font-black uppercase tracking-widest text-slate-300">Reconfigure Board</span>
+          <span className="text-xs font-black uppercase tracking-widest text-slate-300">
+            Reconfigure Board
+          </span>
         </button>
 
         <button
+          type="button"
           disabled={isSolving}
           onClick={onRandomImage}
           className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all active:scale-95 group disabled:opacity-50"
         >
           <RefreshCw className="w-4 h-4 text-purple-400 group-hover:rotate-180 transition-transform duration-700" />
-          <span className="text-xs font-black uppercase tracking-widest text-indigo-300">Fast Randomize</span>
+          <span className="text-xs font-black uppercase tracking-widest text-indigo-300">
+            Fast Randomize
+          </span>
         </button>
       </section>
-      
+
       <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
-        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-2">Instructions</p>
+        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-2">
+          Instructions
+        </p>
         <p className="text-xs text-slate-400 leading-relaxed">
-          Use arrow keys or click tiles to slide them. Reassemble the image by moving tiles into the empty slot.
+          Use arrow keys or click tiles to slide them. Reassemble the image by
+          moving tiles into the empty slot.
         </p>
       </div>
     </div>

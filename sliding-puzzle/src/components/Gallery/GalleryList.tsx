@@ -8,14 +8,18 @@ interface GalleryListProps {
   onSelectGallery: (gallery: Gallery) => void;
 }
 
-export const GalleryList: React.FC<GalleryListProps> = ({ onSelectGallery }) => {
+export const GalleryList: React.FC<GalleryListProps> = (
+  { onSelectGallery },
+) => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col gap-2">
         <h2 className="text-3xl font-black bg-clip-text text-transparent bg-linear-to-r from-indigo-400 to-purple-400 tracking-tighter">
           CURATED GALLERIES
         </h2>
-        <p className="text-slate-400 font-medium italic">Discover hand-picked masterpieces to solve.</p>
+        <p className="text-slate-400 font-medium italic">
+          Discover hand-picked masterpieces to solve.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -45,14 +49,14 @@ export const GalleryList: React.FC<GalleryListProps> = ({ onSelectGallery }) => 
                   {gallery.levels.length} Levels
                 </span>
               </div>
-              
+
               <h3 className="text-2xl font-black text-white mb-2 tracking-tight group-hover:text-indigo-300 transition-colors">
                 {gallery.name}
               </h3>
               <p className="text-slate-400 text-sm line-clamp-2 font-medium">
                 {gallery.description}
               </p>
-              
+
               <div className="mt-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-400 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2.5 group-hover:translate-x-0">
                 Explore Gallery <ChevronRight className="w-3 h-3" />
               </div>

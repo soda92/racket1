@@ -7,7 +7,9 @@ interface PuzzleTileProps {
   onClick: () => void;
 }
 
-export const PuzzleTile: React.FC<PuzzleTileProps> = ({ tileIndex, imageTile, onClick }) => {
+export const PuzzleTile: React.FC<PuzzleTileProps> = (
+  { tileIndex, imageTile, onClick },
+) => {
   if (tileIndex === -1) {
     return (
       <motion.div

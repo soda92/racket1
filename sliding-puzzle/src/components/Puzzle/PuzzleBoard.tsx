@@ -1,7 +1,5 @@
-import React, { useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { EyeOff, Eye } from "lucide-react";
-import confetti from "canvas-confetti";
+import { AnimatePresence, motion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
 import { PuzzleTile } from "./PuzzleTile.tsx";
 import type { GridSize } from "../../utils/gameLogic.ts";
 
@@ -44,7 +42,11 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
             <PuzzleTile
               key={tileIndex === -1 ? "empty" : tileIndex}
               tileIndex={tileIndex}
-              imageTile={imageTiles[tileIndex === -1 && hasWon ? size.rows * size.cols - 1 : tileIndex]}
+              imageTile={imageTiles[
+                tileIndex === -1 && hasWon
+                  ? size.rows * size.cols - 1
+                  : tileIndex
+              ]}
               onClick={() => onTileClick(posIndex)}
             />
           ))}
@@ -58,10 +60,10 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 z-20 pointer-events-none"
               >
-                <img 
-                  src={imageUrl} 
-                  alt="Reference" 
-                  className="w-full h-full object-cover opacity-60" 
+                <img
+                  src={imageUrl}
+                  alt="Reference"
+                  className="w-full h-full object-cover opacity-60"
                 />
                 <div className="absolute inset-0 bg-indigo-900/20 backdrop-blur-[2px]" />
               </motion.div>
@@ -73,6 +75,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
       {/* Preview Button below puzzle */}
       <div className="flex justify-center">
         <button
+          type="button"
           onMouseDown={() => onShowPreview(true)}
           onMouseUp={() => onShowPreview(false)}
           onMouseLeave={() => onShowPreview(false)}
@@ -80,7 +83,9 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
           onTouchEnd={() => onShowPreview(false)}
           className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 transition-all shadow-lg active:scale-95 select-none"
         >
-          {showPreview ? <EyeOff className="w-4 h-4 text-indigo-400" /> : <Eye className="w-4 h-4 text-slate-500" />}
+          {showPreview
+            ? <EyeOff className="w-4 h-4 text-indigo-400" />
+            : <Eye className="w-4 h-4 text-slate-500" />}
           <span>Hold to Preview</span>
         </button>
       </div>

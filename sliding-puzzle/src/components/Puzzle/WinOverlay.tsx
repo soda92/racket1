@@ -1,6 +1,13 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Trophy, Timer, Hash, RefreshCw, Image as ImageIcon, Play } from "lucide-react";
+import {
+  Hash,
+  Image as ImageIcon,
+  Play,
+  RefreshCw,
+  Timer,
+  Trophy,
+} from "lucide-react";
 import confetti from "canvas-confetti";
 
 interface WinOverlayProps {
@@ -25,9 +32,10 @@ export const WinOverlay: React.FC<WinOverlayProps> = ({
     const animationEnd = Date.now() + duration;
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
 
-    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+    const randomInRange = (min: number, max: number) =>
+      Math.random() * (max - min) + min;
 
-    const interval = setInterval(function() {
+    const interval = setInterval(function () {
       const timeLeft = animationEnd - Date.now();
 
       if (timeLeft <= 0) {
@@ -36,8 +44,16 @@ export const WinOverlay: React.FC<WinOverlayProps> = ({
       }
 
       const particleCount = 50 * (timeLeft / duration);
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+      });
     }, 250);
 
     return () => clearInterval(interval);
@@ -70,7 +86,9 @@ export const WinOverlay: React.FC<WinOverlayProps> = ({
               <h2 className="text-3xl md:text-6xl font-black bg-clip-text text-transparent bg-linear-to-r from-indigo-400 via-purple-400 to-pink-400 tracking-tighter mb-2">
                 MASTERPIECE RESTORED!
               </h2>
-              <p className="text-slate-400 text-sm md:text-base font-medium">You solved the puzzle with precision and style.</p>
+              <p className="text-slate-400 text-sm md:text-base font-medium">
+                You solved the puzzle with precision and style.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 md:gap-8 w-full">
@@ -98,34 +116,47 @@ export const WinOverlay: React.FC<WinOverlayProps> = ({
                 <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 md:gap-4">
                   <div className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-white/5 border border-white/10">
                     <span className="flex items-center gap-2 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1 md:mb-2">
-                      <Hash className="w-3 h-3 md:w-4 md:h-4 text-indigo-400" /> Moves
+                      <Hash className="w-3 h-3 md:w-4 md:h-4 text-indigo-400" />
+                      {" "}
+                      Moves
                     </span>
-                    <span className="text-2xl md:text-3xl font-black text-white">{moves}</span>
+                    <span className="text-2xl md:text-3xl font-black text-white">
+                      {moves}
+                    </span>
                   </div>
                   <div className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-white/5 border border-white/10">
                     <span className="flex items-center gap-2 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1 md:mb-2">
-                      <Timer className="w-3 h-3 md:w-4 md:h-4 text-purple-400" /> Time
+                      <Timer className="w-3 h-3 md:w-4 md:h-4 text-purple-400" />
+                      {" "}
+                      Time
                     </span>
-                    <span className="text-2xl md:text-3xl font-black text-white">{timeFormatted}</span>
+                    <span className="text-2xl md:text-3xl font-black text-white">
+                      {timeFormatted}
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-3 mt-2 md:mt-auto">
                   {onNextLevel && (
                     <button
+                      type="button"
                       onClick={onNextLevel}
                       className="w-full flex items-center justify-center gap-3 py-4 md:py-5 rounded-xl md:rounded-2xl bg-linear-to-r from-indigo-500 to-purple-600 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all font-black text-[10px] md:text-xs uppercase tracking-widest active:scale-95 shadow-xl shadow-indigo-500/20"
                     >
-                      <Play className="w-4 h-4 md:w-5 md:h-5 fill-current" /> Next Level
+                      <Play className="w-4 h-4 md:w-5 md:h-5 fill-current" />
+                      {" "}
+                      Next Level
                     </button>
                   )}
                   <button
+                    type="button"
                     onClick={onRestart}
                     className="w-full flex items-center justify-center gap-3 py-4 md:py-5 rounded-xl md:rounded-2xl bg-white/10 hover:bg-white/20 transition-all font-black text-[10px] md:text-xs uppercase tracking-widest active:scale-95 border border-white/10"
                   >
                     <RefreshCw className="w-4 h-4 md:w-5 md:h-5" /> Play Again
                   </button>
                   <button
+                    type="button"
                     onClick={onNewGame}
                     className="w-full flex items-center justify-center gap-3 py-4 md:py-5 rounded-xl md:rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all font-black text-[10px] md:text-xs uppercase tracking-widest active:scale-95 text-slate-400"
                   >

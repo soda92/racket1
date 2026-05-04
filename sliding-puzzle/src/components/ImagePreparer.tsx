@@ -1,5 +1,13 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Camera, LayoutGrid, Check, X, RefreshCw, Square, Focus } from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Camera,
+  Check,
+  Focus,
+  LayoutGrid,
+  RefreshCw,
+  Square,
+  X,
+} from "lucide-react";
 import type { GridSize } from "../utils/gameLogic.ts";
 import { cropImage } from "../utils/imageProcessor.ts";
 
@@ -13,25 +21,40 @@ export type CropArea = {
 interface ImagePreparerProps {
   initialImageUrl: string;
   initialSize: GridSize;
-  onComplete: (data: { processedImageUrl: string; initialImageUrl: string; size: GridSize }) => void;
+  onComplete: (
+    data: {
+      processedImageUrl: string;
+      initialImageUrl: string;
+      size: GridSize;
+    },
+  ) => void;
   onCancel?: () => void;
 }
 
-export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, initialSize, onComplete, onCancel }) => {
+export const ImagePreparer: React.FC<ImagePreparerProps> = (
+  { initialImageUrl, initialSize, onComplete, onCancel },
+) => {
   const [imageUrl, setImageUrl] = useState(initialImageUrl);
   const [size, setSize] = useState<GridSize>(initialSize);
-  const [crop, setCrop] = useState<CropArea>({ x: 10, y: 10, width: 80, height: 80 });
+  const [crop, setCrop] = useState<CropArea>({
+    x: 10,
+    y: 10,
+    width: 80,
+    height: 80,
+  });
   const [isProcessing, setIsProcessing] = useState(false);
-  const [imgAspect, setImgAspect] = useState(1.5); 
-  
+  const [imgAspect, setImgAspect] = useState(1.5);
+
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dragState, setDragState] = useState<{
-    type: "move" | "resize" | null;
-    handle?: "tl" | "tr" | "bl" | "br";
-    startX: number;
-    startY: number;
-    startCrop: CropArea;
-  } | null>(null);
+  const [dragState, setDragState] = useState<
+    {
+      type: "move" | "resize" | null;
+      handle?: "tl" | "tr" | "bl" | "br";
+      startX: number;
+      startY: number;
+      startCrop: CropArea;
+    } | null
+  >(null);
 
   useEffect(() => {
     const img = new Image();
@@ -43,16 +66,21 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
 
   // Calculate the actual playing area (inner crop)
   // To keep tiles SQUARE, the inner area aspect must be cols / rows
-  const calculateInnerCrop = (currentCrop: CropArea, targetSize: GridSize, imageAspect: number) => {
+  const calculateInnerCrop = (
+    currentCrop: CropArea,
+    targetSize: GridSize,
+    imageAspect: number,
+  ) => {
     const targetAspect = targetSize.cols / targetSize.rows;
-    
+
     // Current aspect of selection in pixels = (width_pct / height_pct) * imageAspect
-    const currentAspect = (currentCrop.width / currentCrop.height) * imageAspect;
+    const currentAspect = (currentCrop.width / currentCrop.height) *
+      imageAspect;
 
     let innerWidth = currentCrop.width;
     let innerHeight = currentCrop.height;
-    let innerX = 0; 
-    let innerY = 0; 
+    let innerX = 0;
+    let innerY = 0;
 
     if (currentAspect > targetAspect) {
       // Selection is wider than target aspect
@@ -72,7 +100,7 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
       relativeX: innerX,
       relativeY: innerY,
       relativeWidth: innerWidth,
-      relativeHeight: innerHeight
+      relativeHeight: innerHeight,
     };
   };
 
@@ -90,7 +118,9 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
   const handleRandomImage = async () => {
     setIsProcessing(true);
     try {
-      const response = await fetch(`https://picsum.photos/1200/800?t=${Date.now()}`);
+      const response = await fetch(
+        `https://picsum.photos/1200/800?t=${Date.now()}`,
+      );
       const blob = await response.blob();
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -111,12 +141,12 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
         x: innerCrop.x,
         y: innerCrop.y,
         width: innerCrop.width,
-        height: innerCrop.height
+        height: innerCrop.height,
       });
-      onComplete({ 
-        processedImageUrl, 
-        initialImageUrl: imageUrl, 
-        size 
+      onComplete({
+        processedImageUrl,
+        initialImageUrl: imageUrl,
+        size,
       });
     } catch (err) {
       console.error(err);
@@ -125,14 +155,18 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
     }
   };
 
-  const onMouseDown = (e: React.MouseEvent, type: "move" | "resize", handle?: "tl" | "tr" | "bl" | "br") => {
+  const onMouseDown = (
+    e: React.MouseEvent,
+    type: "move" | "resize",
+    handle?: "tl" | "tr" | "bl" | "br",
+  ) => {
     e.stopPropagation();
     setDragState({
       type,
       handle,
       startX: e.clientX,
       startY: e.clientY,
-      startCrop: { ...crop }
+      startCrop: { ...crop },
     });
   };
 
@@ -146,30 +180,82 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
     const newCrop = { ...dragState.startCrop };
 
     if (dragState.type === "move") {
-      newCrop.x = Math.max(0, Math.min(100 - newCrop.width, dragState.startCrop.x + dx));
-      newCrop.y = Math.max(0, Math.min(100 - newCrop.height, dragState.startCrop.y + dy));
+      newCrop.x = Math.max(
+        0,
+        Math.min(100 - newCrop.width, dragState.startCrop.x + dx),
+      );
+      newCrop.y = Math.max(
+        0,
+        Math.min(100 - newCrop.height, dragState.startCrop.y + dy),
+      );
     } else if (dragState.type === "resize") {
       const h = dragState.handle;
       if (h === "br") {
-        newCrop.width = Math.max(10, Math.min(100 - dragState.startCrop.x, dragState.startCrop.width + dx));
-        newCrop.height = Math.max(10, Math.min(100 - dragState.startCrop.y, dragState.startCrop.height + dy));
+        newCrop.width = Math.max(
+          10,
+          Math.min(100 - dragState.startCrop.x, dragState.startCrop.width + dx),
+        );
+        newCrop.height = Math.max(
+          10,
+          Math.min(
+            100 - dragState.startCrop.y,
+            dragState.startCrop.height + dy,
+          ),
+        );
       } else if (h === "tl") {
-        const newX = Math.max(0, Math.min(dragState.startCrop.x + dragState.startCrop.width - 10, dragState.startCrop.x + dx));
-        newCrop.width = dragState.startCrop.width + (dragState.startCrop.x - newX);
+        const newX = Math.max(
+          0,
+          Math.min(
+            dragState.startCrop.x + dragState.startCrop.width - 10,
+            dragState.startCrop.x + dx,
+          ),
+        );
+        newCrop.width = dragState.startCrop.width +
+          (dragState.startCrop.x - newX);
         newCrop.x = newX;
-        const newY = Math.max(0, Math.min(dragState.startCrop.y + dragState.startCrop.height - 10, dragState.startCrop.y + dy));
-        newCrop.height = dragState.startCrop.height + (dragState.startCrop.y - newY);
+        const newY = Math.max(
+          0,
+          Math.min(
+            dragState.startCrop.y + dragState.startCrop.height - 10,
+            dragState.startCrop.y + dy,
+          ),
+        );
+        newCrop.height = dragState.startCrop.height +
+          (dragState.startCrop.y - newY);
         newCrop.y = newY;
       } else if (h === "tr") {
-        newCrop.width = Math.max(10, Math.min(100 - dragState.startCrop.x, dragState.startCrop.width + dx));
-        const newY = Math.max(0, Math.min(dragState.startCrop.y + dragState.startCrop.height - 10, dragState.startCrop.y + dy));
-        newCrop.height = dragState.startCrop.height + (dragState.startCrop.y - newY);
+        newCrop.width = Math.max(
+          10,
+          Math.min(100 - dragState.startCrop.x, dragState.startCrop.width + dx),
+        );
+        const newY = Math.max(
+          0,
+          Math.min(
+            dragState.startCrop.y + dragState.startCrop.height - 10,
+            dragState.startCrop.y + dy,
+          ),
+        );
+        newCrop.height = dragState.startCrop.height +
+          (dragState.startCrop.y - newY);
         newCrop.y = newY;
       } else if (h === "bl") {
-        const newX = Math.max(0, Math.min(dragState.startCrop.x + dragState.startCrop.width - 10, dragState.startCrop.x + dx));
-        newCrop.width = dragState.startCrop.width + (dragState.startCrop.x - newX);
+        const newX = Math.max(
+          0,
+          Math.min(
+            dragState.startCrop.x + dragState.startCrop.width - 10,
+            dragState.startCrop.x + dx,
+          ),
+        );
+        newCrop.width = dragState.startCrop.width +
+          (dragState.startCrop.x - newX);
         newCrop.x = newX;
-        newCrop.height = Math.max(10, Math.min(100 - dragState.startCrop.y, dragState.startCrop.height + dy));
+        newCrop.height = Math.max(
+          10,
+          Math.min(
+            100 - dragState.startCrop.y,
+            dragState.startCrop.height + dy,
+          ),
+        );
       }
     }
 
@@ -202,66 +288,94 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
             <Focus className="w-3 h-3" /> Square tiles guaranteed
           </div>
         </div>
-        
+
         <div className="relative aspect-video bg-black/40 rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center group touch-none">
-          <div 
+          <div
             ref={containerRef}
             className="relative shadow-2xl"
             style={{
               aspectRatio: imgAspect,
-              maxHeight: '100%',
-              maxWidth: '100%',
+              maxHeight: "100%",
+              maxWidth: "100%",
             }}
           >
-            <img src={imageUrl} alt="Setup" className="w-full h-full object-cover" />
+            <img
+              src={imageUrl}
+              alt="Setup"
+              className="w-full h-full object-cover"
+            />
             <div className="absolute inset-0 bg-black/40" />
 
-            <div 
-              className={`absolute border border-white/30 bg-white/5 transition-shadow cursor-move ${dragState?.type === 'move' ? 'bg-white/10' : ''}`}
+            <div
+              className={`absolute border border-white/30 bg-white/5 transition-shadow cursor-move ${
+                dragState?.type === "move" ? "bg-white/10" : ""
+              }`}
               style={{
                 left: `${crop.x}%`,
                 top: `${crop.y}%`,
                 width: `${crop.width}%`,
-                height: `${crop.height}%`
+                height: `${crop.height}%`,
               }}
               onMouseDown={(e) => onMouseDown(e, "move")}
             >
               {/* Aspect-Correct Result Overlay */}
-              <div 
+              <div
                 className="absolute border-2 border-indigo-500 shadow-[0_0_30px_rgba(99,102,241,0.5)] bg-black/10 pointer-events-none overflow-hidden"
                 style={{
                   left: `${(innerCrop.relativeX / crop.width) * 100}%`,
                   top: `${(innerCrop.relativeY / crop.height) * 100}%`,
                   width: `${(innerCrop.relativeWidth / crop.width) * 100}%`,
-                  height: `${(innerCrop.relativeHeight / crop.height) * 100}%`
+                  height: `${(innerCrop.relativeHeight / crop.height) * 100}%`,
                 }}
               >
-                <div 
+                <div
                   className="absolute"
                   style={{
-                    left: `${- (innerCrop.x / innerCrop.width) * 100}%`,
-                    top: `${- (innerCrop.y / innerCrop.height) * 100}%`,
+                    left: `${-(innerCrop.x / innerCrop.width) * 100}%`,
+                    top: `${-(innerCrop.y / innerCrop.height) * 100}%`,
                     width: `${(100 / innerCrop.width) * 100}%`,
                     height: `${(100 / innerCrop.height) * 100}%`,
                   }}
                 >
-                  <img src={imageUrl} alt="" className="w-full h-full object-cover opacity-100" />
+                  <img
+                    src={imageUrl}
+                    alt=""
+                    className="w-full h-full object-cover opacity-100"
+                  />
                 </div>
 
-                <div className="absolute inset-0 grid z-10" style={{
-                  gridTemplateColumns: `repeat(${size.cols}, 1fr)`,
-                  gridTemplateRows: `repeat(${size.rows}, 1fr)`,
-                }}>
+                <div
+                  className="absolute inset-0 grid z-10"
+                  style={{
+                    gridTemplateColumns: `repeat(${size.cols}, 1fr)`,
+                    gridTemplateRows: `repeat(${size.rows}, 1fr)`,
+                  }}
+                >
                   {Array.from({ length: size.rows * size.cols }).map((_, i) => (
-                    <div key={i} className="border-[0.5px] border-indigo-400/30" />
+                    <div
+                      key={i}
+                      className="border-[0.5px] border-indigo-400/30"
+                    />
                   ))}
                 </div>
               </div>
 
-              <div className="absolute -top-2 -left-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nwse-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20" onMouseDown={(e) => onMouseDown(e, "resize", "tl")} />
-              <div className="absolute -top-2 -right-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nesw-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20" onMouseDown={(e) => onMouseDown(e, "resize", "tr")} />
-              <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nesw-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20" onMouseDown={(e) => onMouseDown(e, "resize", "bl")} />
-              <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nwse-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20" onMouseDown={(e) => onMouseDown(e, "resize", "br")} />
+              <div
+                className="absolute -top-2 -left-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nwse-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20"
+                onMouseDown={(e) => onMouseDown(e, "resize", "tl")}
+              />
+              <div
+                className="absolute -top-2 -right-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nesw-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20"
+                onMouseDown={(e) => onMouseDown(e, "resize", "tr")}
+              />
+              <div
+                className="absolute -bottom-2 -left-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nesw-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20"
+                onMouseDown={(e) => onMouseDown(e, "resize", "bl")}
+              />
+              <div
+                className="absolute -bottom-2 -right-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nwse-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20"
+                onMouseDown={(e) => onMouseDown(e, "resize", "br")}
+              />
             </div>
           </div>
 
@@ -281,29 +395,46 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
           <div className="space-y-8 p-6 bg-white/5 rounded-4xl border border-white/10">
             <div className="space-y-4">
               <div className="flex justify-between items-end">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Rows</span>
-                <span className="text-2xl font-black text-indigo-400 leading-none">{size.rows}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                  Rows
+                </span>
+                <span className="text-2xl font-black text-indigo-400 leading-none">
+                  {size.rows}
+                </span>
               </div>
-              <input 
-                type="range" min="2" max="5" value={size.rows} 
-                onChange={(e) => setSize({ ...size, rows: parseInt(e.target.value) })} 
-                className="w-full h-2 bg-indigo-500/20 rounded-lg appearance-none cursor-pointer accent-indigo-500" 
+              <input
+                type="range"
+                min="2"
+                max="5"
+                value={size.rows}
+                onChange={(e) =>
+                  setSize({ ...size, rows: parseInt(e.target.value) })}
+                className="w-full h-2 bg-indigo-500/20 rounded-lg appearance-none cursor-pointer accent-indigo-500"
               />
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-end">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Columns</span>
-                <span className="text-2xl font-black text-purple-400 leading-none">{size.cols}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                  Columns
+                </span>
+                <span className="text-2xl font-black text-purple-400 leading-none">
+                  {size.cols}
+                </span>
               </div>
-              <input 
-                type="range" min="2" max="5" value={size.cols} 
-                onChange={(e) => setSize({ ...size, cols: parseInt(e.target.value) })} 
-                className="w-full h-2 bg-purple-500/20 rounded-lg appearance-none cursor-pointer accent-purple-500" 
+              <input
+                type="range"
+                min="2"
+                max="5"
+                value={size.cols}
+                onChange={(e) =>
+                  setSize({ ...size, cols: parseInt(e.target.value) })}
+                className="w-full h-2 bg-purple-500/20 rounded-lg appearance-none cursor-pointer accent-purple-500"
               />
             </div>
           </div>
           <p className="text-[10px] text-slate-600 font-bold uppercase text-center px-4 leading-relaxed">
-            The indigo grid shows the actual puzzle area.<br/>Tiles are always perfect squares.
+            The indigo grid shows the actual puzzle area.<br />Tiles are always
+            perfect squares.
           </p>
         </section>
 
@@ -313,11 +444,22 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
           </label>
           <div className="flex flex-col gap-3">
             <label className="relative flex items-center justify-center gap-3 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all cursor-pointer">
-              <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
               <Camera className="w-4 h-4 text-slate-400" />
-              <span className="text-xs font-black uppercase tracking-widest">Upload Image</span>
+              <span className="text-xs font-black uppercase tracking-widest">
+                Upload Image
+              </span>
             </label>
-            <button onClick={handleRandomImage} className="py-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 text-indigo-400 hover:bg-indigo-500/10 transition-all text-xs font-black uppercase tracking-widest">
+            <button
+              type="button"
+              onClick={handleRandomImage}
+              className="py-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 text-indigo-400 hover:bg-indigo-500/10 transition-all text-xs font-black uppercase tracking-widest"
+            >
               Random Artwork
             </button>
           </div>
@@ -325,11 +467,16 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
 
         <div className="pt-4 flex gap-3">
           {onCancel && (
-            <button onClick={onCancel} className="p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all active:scale-95">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all active:scale-95"
+            >
               <X className="w-6 h-6 text-slate-500" />
             </button>
           )}
           <button
+            type="button"
             onClick={handleApply}
             disabled={isProcessing}
             className="flex-1 flex items-center justify-center gap-3 bg-linear-to-r from-indigo-500 to-purple-600 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all active:scale-95 disabled:opacity-50"

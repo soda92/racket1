@@ -53,7 +53,11 @@ export const isSolved = (grid: number[]): boolean => {
   return grid[grid.length - 1] === -1;
 };
 
-export const canMove = (index: number, emptyIndex: number, size: GridSize): boolean => {
+export const canMove = (
+  index: number,
+  emptyIndex: number,
+  size: GridSize,
+): boolean => {
   const row = Math.floor(index / size.cols);
   const col = index % size.cols;
   const emptyRow = Math.floor(emptyIndex / size.cols);

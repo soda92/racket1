@@ -1,54 +1,151 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+    <linearGradient
+      id="bg"
+      x1="0"
+      y1="0"
+      x2="64"
+      y2="64"
+      gradientUnits="userSpaceOnUse"
+    >
       <stop stop-color="#1e1b4b" />
       <stop offset="1" stop-color="#020617" />
     </linearGradient>
-    <linearGradient id="tile1" x1="6" y1="6" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+    <linearGradient
+      id="tile1"
+      x1="6"
+      y1="6"
+      x2="30"
+      y2="30"
+      gradientUnits="userSpaceOnUse"
+    >
       <stop stop-color="#818cf8" />
       <stop offset="1" stop-color="#4f46e5" />
     </linearGradient>
-    <linearGradient id="tile2" x1="34" y1="6" x2="58" y2="30" gradientUnits="userSpaceOnUse">
+    <linearGradient
+      id="tile2"
+      x1="34"
+      y1="6"
+      x2="58"
+      y2="30"
+      gradientUnits="userSpaceOnUse"
+    >
       <stop stop-color="#c084fc" />
       <stop offset="1" stop-color="#9333ea" />
     </linearGradient>
-    <linearGradient id="tile3" x1="6" y1="34" x2="30" y2="58" gradientUnits="userSpaceOnUse">
+    <linearGradient
+      id="tile3"
+      x1="6"
+      y1="34"
+      x2="30"
+      y2="58"
+      gradientUnits="userSpaceOnUse"
+    >
       <stop stop-color="#f472b6" />
       <stop offset="1" stop-color="#db2777" />
     </linearGradient>
     <filter id="shadow" x="0" y="0" width="150%" height="150%">
-      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.5" />
+      <feDropShadow
+        dx="0"
+        dy="2"
+        stdDeviation="2"
+        flood-color="#000000"
+        flood-opacity="0.5"
+      />
     </filter>
   </defs>
 
   <!-- Background -->
   <rect x="0" y="0" width="64" height="64" rx="16" fill="url(#bg)" />
-  <rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#334155" stroke-width="2" />
-  
+  <rect
+    x="1"
+    y="1"
+    width="62"
+    height="62"
+    rx="15"
+    fill="none"
+    stroke="#334155"
+    stroke-width="2"
+  />
+
   <!-- Empty slot (Bottom Right) -->
   <rect x="34" y="34" width="24" height="24" rx="6" fill="#0f172a" />
-  
+
   <!-- Arrow hinting at slide mechanics -->
-  <path d="M46 48 L46 39 M42 43 L46 39 L50 43" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <path
+    d="M46 48 L46 39 M42 43 L46 39 L50 43"
+    stroke="#334155"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
 
   <!-- Tile 1 -->
   <g filter="url(#shadow)">
     <rect x="6" y="6" width="24" height="24" rx="6" fill="url(#tile1)" />
-    <rect x="8" y="8" width="20" height="4" rx="2" fill="#ffffff" fill-opacity="0.25" />
-    <text x="18" y="23" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="14" fill="#ffffff" text-anchor="middle">1</text>
+    <rect
+      x="8"
+      y="8"
+      width="20"
+      height="4"
+      rx="2"
+      fill="#ffffff"
+      fill-opacity="0.25"
+    />
+    <text
+      x="18"
+      y="23"
+      font-family="system-ui, -apple-system, sans-serif"
+      font-weight="900"
+      font-size="14"
+      fill="#ffffff"
+      text-anchor="middle"
+    >1</text>
   </g>
 
   <!-- Tile 2 -->
   <g filter="url(#shadow)">
     <rect x="34" y="6" width="24" height="24" rx="6" fill="url(#tile2)" />
-    <rect x="36" y="8" width="20" height="4" rx="2" fill="#ffffff" fill-opacity="0.25" />
-    <text x="46" y="23" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="14" fill="#ffffff" text-anchor="middle">2</text>
+    <rect
+      x="36"
+      y="8"
+      width="20"
+      height="4"
+      rx="2"
+      fill="#ffffff"
+      fill-opacity="0.25"
+    />
+    <text
+      x="46"
+      y="23"
+      font-family="system-ui, -apple-system, sans-serif"
+      font-weight="900"
+      font-size="14"
+      fill="#ffffff"
+      text-anchor="middle"
+    >2</text>
   </g>
 
   <!-- Tile 3 -->
   <g filter="url(#shadow)">
     <rect x="6" y="34" width="24" height="24" rx="6" fill="url(#tile3)" />
-    <rect x="8" y="36" width="20" height="4" rx="2" fill="#ffffff" fill-opacity="0.25" />
-    <text x="18" y="51" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="14" fill="#ffffff" text-anchor="middle">3</text>
+    <rect
+      x="8"
+      y="36"
+      width="20"
+      height="4"
+      rx="2"
+      fill="#ffffff"
+      fill-opacity="0.25"
+    />
+    <text
+      x="18"
+      y="51"
+      font-family="system-ui, -apple-system, sans-serif"
+      font-weight="900"
+      font-size="14"
+      fill="#ffffff"
+      text-anchor="middle"
+    >3</text>
   </g>
 </svg>

@@ -1,6 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Maximize, Minimize, Timer, Brain, RefreshCw, Loader2 } from "lucide-react";
+import {
+  Brain,
+  Loader2,
+  Maximize,
+  Minimize,
+  RefreshCw,
+  Timer,
+} from "lucide-react";
 
 interface PuzzleHeaderProps {
   moves: number;
@@ -35,18 +42,19 @@ export const PuzzleHeader: React.FC<PuzzleHeaderProps> = ({
             SLIDING PUZZLE
           </motion.h1>
           <button
+            type="button"
             onClick={onToggleFullscreen}
             className="p-2 hover:bg-white/10 rounded-xl transition-colors"
             title="Full Screen"
           >
-            {isFullscreen ? (
-              <Minimize className="w-5 h-5 text-slate-400" />
-            ) : (
-              <Maximize className="w-5 h-5 text-slate-400" />
-            )}
+            {isFullscreen
+              ? <Minimize className="w-5 h-5 text-slate-400" />
+              : <Maximize className="w-5 h-5 text-slate-400" />}
           </button>
         </div>
-        <p className="text-slate-400 mt-2 font-medium">Reassemble the masterpiece.</p>
+        <p className="text-slate-400 mt-2 font-medium">
+          Reassemble the masterpiece.
+        </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
@@ -55,7 +63,9 @@ export const PuzzleHeader: React.FC<PuzzleHeaderProps> = ({
             <span className="block text-[8px] md:text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">
               Moves
             </span>
-            <span className="text-lg md:text-xl font-mono font-bold text-indigo-400">{moves}</span>
+            <span className="text-lg md:text-xl font-mono font-bold text-indigo-400">
+              {moves}
+            </span>
           </div>
           <div className="w-px h-8 bg-white/10" />
           <div className="text-center">
@@ -70,18 +80,18 @@ export const PuzzleHeader: React.FC<PuzzleHeaderProps> = ({
         </div>
         <div className="flex gap-2">
           <button
+            type="button"
             onClick={onAutoSolve}
             disabled={isSolving || hasWon}
             className="p-3 md:p-4 bg-indigo-500/20 hover:bg-indigo-500/30 disabled:opacity-30 disabled:cursor-not-allowed rounded-2xl transition-all border border-indigo-500/30 active:scale-95 text-indigo-300"
             title="AI Solve"
           >
-            {isSolving ? (
-              <Loader2 className="w-5 h-5 md:w-6 animate-spin" />
-            ) : (
-              <Brain className="w-5 h-5 md:w-6" />
-            )}
+            {isSolving
+              ? <Loader2 className="w-5 h-5 md:w-6 animate-spin" />
+              : <Brain className="w-5 h-5 md:w-6" />}
           </button>
           <button
+            type="button"
             onClick={onRestart}
             disabled={isSolving}
             className="p-3 md:p-4 bg-white/5 hover:bg-white/10 disabled:opacity-30 rounded-2xl transition-all border border-white/10 active:scale-95 group"

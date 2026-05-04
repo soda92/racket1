@@ -7,9 +7,9 @@ export type CropArea = {
   height: number;
 };
 
-export const cropImage = async (
+export const cropImage = (
   imageSrc: string,
-  crop: CropArea
+  crop: CropArea,
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -40,7 +40,7 @@ export const cropImage = async (
         0,
         0,
         sourceWidth,
-        sourceHeight
+        sourceHeight,
       );
       resolve(canvas.toDataURL("image/webp", 0.9));
     };
@@ -49,16 +49,16 @@ export const cropImage = async (
   });
 };
 
-export const sliceImage = async (
+export const sliceImage = (
   imageSrc: string,
-  size: GridSize
+  size: GridSize,
 ): Promise<string[]> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
       const { rows, cols } = size;
-      
+
       const sourceX = 0;
       const sourceY = 0;
       const sourceWidth = img.width;
@@ -77,7 +77,7 @@ export const sliceImage = async (
       }
 
       const targetTileSize = 300;
-      canvas.width = targetTileSize; 
+      canvas.width = targetTileSize;
       canvas.height = targetTileSize * (tileHeight / tileWidth);
 
       for (let r = 0; r < rows; r++) {
@@ -92,7 +92,7 @@ export const sliceImage = async (
             0,
             0,
             canvas.width,
-            canvas.height
+            canvas.height,
           );
           tiles.push(canvas.toDataURL("image/webp", 0.9));
         }

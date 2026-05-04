@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { usePuzzleGame } from "../hooks/usePuzzleGame.ts";
 import { useTimer } from "../hooks/useTimer.ts";
 import { useFullscreen } from "../hooks/useFullscreen.ts";
@@ -13,7 +13,7 @@ import { GalleryDetail } from "./Gallery/GalleryDetail.tsx";
 import type { Gallery, Level } from "../data/galleries.ts";
 import { storage } from "../utils/storage.ts";
 import { useLocalStorage } from "../hooks/useLocalStorage.ts";
-import { LayoutGrid, Camera, Image as ImageIcon, ChevronLeft } from "lucide-react";
+import { Camera, ChevronLeft, Image as ImageIcon } from "lucide-react";
 
 type ViewState = "menu" | "gallery-list" | "gallery-detail" | "game" | "setup";
 
@@ -22,12 +22,12 @@ const SlidingPuzzle: React.FC = () => {
   const [view, setView] = useState<ViewState>("menu");
   const [selectedGallery, setSelectedGallery] = useState<Gallery | null>(null);
   const [currentLevel, setCurrentLevel] = useState<Level | null>(null);
-  
+
   const [sourceImageUrl, setSourceImageUrl] = useLocalStorage<string>(
-    "puzzle-source-image", 
-    "https://picsum.photos/1200/800"
+    "puzzle-source-image",
+    "https://picsum.photos/1200/800",
   );
-  
+
   const {
     grid,
     moves,
@@ -48,7 +48,10 @@ const SlidingPuzzle: React.FC = () => {
   } = usePuzzleGame();
 
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
-  const { seconds, formatTime } = useTimer(!hasWon && moves > 0 && !isSolving, time);
+  const { seconds, formatTime } = useTimer(
+    !hasWon && moves > 0 && !isSolving,
+    time,
+  );
 
   useEffect(() => {
     setTime(seconds);
@@ -60,12 +63,14 @@ const SlidingPuzzle: React.FC = () => {
       storage.saveProgress(currentLevel.id, {
         solved: true,
         bestMoves: moves,
-        bestTime: seconds
+        bestTime: seconds,
       });
     }
   }, [hasWon, currentLevel, moves, seconds]);
 
-  const handleSetupComplete = (data: { processedImageUrl: string; size: { rows: number; cols: number } }) => {
+  const handleSetupComplete = (
+    data: { processedImageUrl: string; size: { rows: number; cols: number } },
+  ) => {
     setImageUrl(data.processedImageUrl);
     setSize(data.size);
     setView("game");
@@ -83,8 +88,12 @@ const SlidingPuzzle: React.FC = () => {
 
   const handleNextLevel = () => {
     if (!selectedGallery || !currentLevel) return;
-    const currentIndex = selectedGallery.levels.findIndex(l => l.id === currentLevel.id);
-    if (currentIndex !== -1 && currentIndex < selectedGallery.levels.length - 1) {
+    const currentIndex = selectedGallery.levels.findIndex((l) =>
+      l.id === currentLevel.id
+    );
+    if (
+      currentIndex !== -1 && currentIndex < selectedGallery.levels.length - 1
+    ) {
       handlePlayLevel(selectedGallery.levels[currentIndex + 1]);
     } else {
       setView("gallery-detail");
@@ -93,7 +102,9 @@ const SlidingPuzzle: React.FC = () => {
 
   const handleFastRandomize = async () => {
     try {
-      const response = await fetch(`https://picsum.photos/1200/800?t=${Date.now()}`);
+      const response = await fetch(
+        `https://picsum.photos/1200/800?t=${Date.now()}`,
+      );
       const blob = await response.blob();
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -135,11 +146,13 @@ const SlidingPuzzle: React.FC = () => {
                 SLIDING PUZZLE
               </h1>
               <p className="text-slate-400 text-lg md:text-xl font-medium mb-12 max-w-2xl leading-relaxed">
-                Experience the classic challenge reimagined with stunning visuals and curated masterpieces.
+                Experience the classic challenge reimagined with stunning
+                visuals and curated masterpieces.
               </p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
                 <button
+                  type="button"
                   onClick={() => setView("gallery-list")}
                   className="flex flex-col items-center gap-6 p-10 rounded-[2.5rem] bg-white/5 border border-white/10 hover:border-indigo-500/50 hover:bg-white/10 transition-all group active:scale-95"
                 >
@@ -147,12 +160,17 @@ const SlidingPuzzle: React.FC = () => {
                     <ImageIcon className="w-8 h-8 text-indigo-400" />
                   </div>
                   <div className="text-center">
-                    <h3 className="text-xl font-black text-white mb-1 uppercase tracking-tight">Gallery</h3>
-                    <p className="text-slate-500 text-sm font-medium">Browse curated collections</p>
+                    <h3 className="text-xl font-black text-white mb-1 uppercase tracking-tight">
+                      Gallery
+                    </h3>
+                    <p className="text-slate-500 text-sm font-medium">
+                      Browse curated collections
+                    </p>
                   </div>
                 </button>
-                
+
                 <button
+                  type="button"
                   onClick={() => setView("setup")}
                   className="flex flex-col items-center gap-6 p-10 rounded-[2.5rem] bg-white/5 border border-white/10 hover:border-purple-500/50 hover:bg-white/10 transition-all group active:scale-95"
                 >
@@ -160,8 +178,12 @@ const SlidingPuzzle: React.FC = () => {
                     <Camera className="w-8 h-8 text-purple-400" />
                   </div>
                   <div className="text-center">
-                    <h3 className="text-xl font-black text-white mb-1 uppercase tracking-tight">Custom</h3>
-                    <p className="text-slate-500 text-sm font-medium">Use your own photos</p>
+                    <h3 className="text-xl font-black text-white mb-1 uppercase tracking-tight">
+                      Custom
+                    </h3>
+                    <p className="text-slate-500 text-sm font-medium">
+                      Use your own photos
+                    </p>
                   </div>
                 </button>
               </div>
@@ -169,54 +191,95 @@ const SlidingPuzzle: React.FC = () => {
           )}
 
           {view === "gallery-list" && (
-            <motion.div key="gallery-list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <button onClick={() => setView("menu")} className="flex items-center gap-2 text-slate-400 hover:text-white mb-8 transition-colors group">
+            <motion.div
+              key="gallery-list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <button
+                type="button"
+                onClick={() => setView("menu")}
+                className="flex items-center gap-2 text-slate-400 hover:text-white mb-8 transition-colors group"
+              >
                 <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                <span className="text-xs font-black uppercase tracking-widest">Back to Menu</span>
+                <span className="text-xs font-black uppercase tracking-widest">
+                  Back to Menu
+                </span>
               </button>
-              <GalleryList onSelectGallery={(g) => { setSelectedGallery(g); setView("gallery-detail"); }} />
+              <GalleryList
+                onSelectGallery={(g) => {
+                  setSelectedGallery(g);
+                  setView("gallery-detail");
+                }}
+              />
             </motion.div>
           )}
 
           {view === "gallery-detail" && selectedGallery && (
-            <motion.div key="gallery-detail" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <GalleryDetail 
-                gallery={selectedGallery} 
-                onBack={() => setView("gallery-list")} 
-                onPlayLevel={handlePlayLevel} 
+            <motion.div
+              key="gallery-detail"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <GalleryDetail
+                gallery={selectedGallery}
+                onBack={() => setView("gallery-list")}
+                onPlayLevel={handlePlayLevel}
               />
             </motion.div>
           )}
 
           {view === "setup" && (
-            <motion.div key="setup" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div
+              key="setup"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
               <div className="mb-10 border-b border-white/10 pb-8 flex items-center justify-between">
                 <div>
-                  <h2 className="text-3xl font-black bg-clip-text text-transparent bg-linear-to-r from-indigo-400 to-purple-400 tracking-tighter">PREPARE YOUR PUZZLE</h2>
-                  <p className="text-slate-400 mt-1">Select an image and configure your challenge.</p>
+                  <h2 className="text-3xl font-black bg-clip-text text-transparent bg-linear-to-r from-indigo-400 to-purple-400 tracking-tighter">
+                    PREPARE YOUR PUZZLE
+                  </h2>
+                  <p className="text-slate-400 mt-1">
+                    Select an image and configure your challenge.
+                  </p>
                 </div>
-                <button onClick={() => setView("menu")} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 transition-all active:scale-95">
+                <button
+                  type="button"
+                  onClick={() => setView("menu")}
+                  className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 transition-all active:scale-95"
+                >
                   <ChevronLeft className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
-              <ImagePreparer 
-                initialImageUrl={sourceImageUrl} 
+              <ImagePreparer
+                initialImageUrl={sourceImageUrl}
                 initialSize={size}
                 onComplete={(data) => {
                   setSourceImageUrl(data.initialImageUrl);
                   setCurrentLevel(null);
                   handleSetupComplete(data);
-                }} 
+                }}
                 onCancel={() => setView("menu")}
               />
             </motion.div>
           )}
 
           {view === "game" && (
-            <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div
+              key="game"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
               <div className="flex items-center gap-4 mb-4">
                 <button
-                  onClick={() => setView(currentLevel ? "gallery-detail" : "menu")}
+                  type="button"
+                  onClick={() =>
+                    setView(currentLevel ? "gallery-detail" : "menu")}
                   className="flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors group"
                 >
                   <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -233,7 +296,7 @@ const SlidingPuzzle: React.FC = () => {
                   </span>
                 )}
               </div>
-              
+
               <PuzzleHeader
                 moves={moves}
                 timeFormatted={formatTime(seconds)}
@@ -281,8 +344,11 @@ const SlidingPuzzle: React.FC = () => {
               setView(currentLevel ? "gallery-detail" : "menu");
               initGame(true);
             }}
-            onNextLevel={currentLevel && selectedGallery?.levels.findIndex(l => l.id === currentLevel.id) !== selectedGallery?.levels.length! - 1 
-              ? handleNextLevel 
+            onNextLevel={currentLevel &&
+                selectedGallery?.levels.findIndex((l) =>
+                    l.id === currentLevel.id
+                  ) !== selectedGallery?.levels.length! - 1
+              ? handleNextLevel
               : undefined}
           />
         )}
