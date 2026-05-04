@@ -1,5 +1,5 @@
 import { Settings, RefreshCw, LayoutGrid } from "lucide-react";
-import type { GridSize } from "../../utils/gameLogic";
+import type { GridSize } from "../../utils/gameLogic.ts";
 
 interface PuzzleControlsProps {
   size: GridSize;

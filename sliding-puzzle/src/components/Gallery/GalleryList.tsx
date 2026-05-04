@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { GALLERIES, Gallery } from "../../data/galleries";
+import { GALLERIES } from "../../data/galleries.ts";
+import type { Gallery } from "../../data/galleries.ts";
 import { ChevronRight, LayoutGrid, Image as ImageIcon } from "lucide-react";
 
 interface GalleryListProps {

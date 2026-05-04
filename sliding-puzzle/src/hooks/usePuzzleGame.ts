@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { shuffleGrid, canMove, isSolved, type GridSize } from "../utils/gameLogic";
-import { sliceImage } from "../utils/imageProcessor";
-import { solvePuzzle } from "../utils/solver";
-import { useLocalStorage } from "./useLocalStorage";
+import { shuffleGrid, canMove, isSolved, type GridSize } from "../utils/gameLogic.ts";
+import { sliceImage } from "../utils/imageProcessor.ts";
+import { solvePuzzle } from "../utils/solver.ts";
+import { useLocalStorage } from "./useLocalStorage.ts";
 
 export function usePuzzleGame() {
   const [size, setSize] = useLocalStorage<GridSize>("puzzle-size", { rows: 4, cols: 4 });
@@ -135,8 +135,8 @@ export function usePuzzleGame() {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    globalThis.addEventListener("keydown", handleKeyDown);
+    return () => globalThis.removeEventListener("keydown", handleKeyDown);
   }, [grid, hasWon, size, handleTileClick, isSolving]);
 
   return {

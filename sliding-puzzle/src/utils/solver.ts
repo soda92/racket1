@@ -1,4 +1,4 @@
-import type { GridSize } from "./gameLogic";
+import type { GridSize } from "./gameLogic.ts";
 
 type Board = Uint8Array;
 

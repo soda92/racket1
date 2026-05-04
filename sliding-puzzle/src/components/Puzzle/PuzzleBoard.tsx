@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { EyeOff, Eye } from "lucide-react";
 import confetti from "canvas-confetti";
-import { PuzzleTile } from "./PuzzleTile";
-import type { GridSize } from "../../utils/gameLogic";
+import { PuzzleTile } from "./PuzzleTile.tsx";
+import type { GridSize } from "../../utils/gameLogic.ts";
 
 interface PuzzleBoardProps {
   grid: number[];

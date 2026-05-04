@@ -6,7 +6,7 @@ export function useTimer(isActive: boolean, initialSeconds: number = 0) {
 
   useEffect(() => {
     if (isActive) {
-      timerRef.current = window.setInterval(() => {
+      timerRef.current = globalThis.setInterval(() => {
         setSeconds((s) => s + 1);
       }, 1000);
     } else {

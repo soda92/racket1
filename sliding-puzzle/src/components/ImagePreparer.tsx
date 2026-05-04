@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Camera, LayoutGrid, Check, X, RefreshCw, Square, Focus } from "lucide-react";
-import type { GridSize } from "../utils/gameLogic";
-import { cropImage } from "../utils/imageProcessor";
+import type { GridSize } from "../utils/gameLogic.ts";
+import { cropImage } from "../utils/imageProcessor.ts";
 
 export type CropArea = {
   x: number;
@@ -182,12 +182,12 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
 
   useEffect(() => {
     if (dragState) {
-      window.addEventListener("mousemove", onMouseMove);
-      window.addEventListener("mouseup", onMouseUp);
+      globalThis.addEventListener("mousemove", onMouseMove);
+      globalThis.addEventListener("mouseup", onMouseUp);
     }
     return () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
+      globalThis.removeEventListener("mousemove", onMouseMove);
+      globalThis.removeEventListener("mouseup", onMouseUp);
     };
   }, [dragState, onMouseMove, onMouseUp]);
 

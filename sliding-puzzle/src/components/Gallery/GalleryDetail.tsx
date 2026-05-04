@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Gallery, Level } from "../../data/galleries";
-import { storage, LevelProgress } from "../../utils/storage";
+import type { Gallery, Level } from "../../data/galleries.ts";
+import { storage } from "../../utils/storage.ts";
+import type { LevelProgress } from "../../utils/storage.ts";
 import { 
   ChevronLeft, 
   Download, 
   Play, 
   CheckCircle2, 
   Lock, 
-  Trophy, 
   Clock, 
   Hash,
   Loader2,

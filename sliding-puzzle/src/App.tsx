@@ -1,4 +1,4 @@
-import SlidingPuzzle from "./components/SlidingPuzzle";
+import SlidingPuzzle from "./components/SlidingPuzzle.tsx";
 
 function App() {
   return (

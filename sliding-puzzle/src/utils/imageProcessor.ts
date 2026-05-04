@@ -1,4 +1,4 @@
-import type { GridSize } from "./gameLogic";
+import type { GridSize } from "./gameLogic.ts";
 
 export type CropArea = {
   x: number;
