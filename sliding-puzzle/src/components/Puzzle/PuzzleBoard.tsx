@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, EyeOff, Eye, RefreshCw } from "lucide-react";
+import { EyeOff, Eye } from "lucide-react";
+import confetti from "canvas-confetti";
 import { PuzzleTile } from "./PuzzleTile";
 import type { GridSize } from "../../utils/gameLogic";
-
 interface PuzzleBoardProps {
   grid: number[];
   size: GridSize;
@@ -11,11 +11,7 @@ interface PuzzleBoardProps {
   imageUrl: string;
   showPreview: boolean;
   hasWon: boolean;
-  showSuccessOverlay: boolean;
-  moves: number;
-  timeFormatted: string;
   onTileClick: (index: number) => void;
-  onRestart: () => void;
   onShowPreview: (show: boolean) => void;
 }
 
@@ -26,13 +22,36 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   imageUrl,
   showPreview,
   hasWon,
-  showSuccessOverlay,
-  moves,
-  timeFormatted,
   onTileClick,
-  onRestart,
   onShowPreview,
 }) => {
+  // Trigger confetti on win
+  useEffect(() => {
+    if (hasWon) {
+      const duration = 3 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 50 };
+
+      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+      const interval = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          return;
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+        // since particles fall down, start a bit higher than random
+        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+      }, 250);
+
+      return () => clearInterval(interval);
+    }
+  }, [hasWon]);
+
   return (
     <div className="flex flex-col gap-6 w-full">
       <div className="relative w-full max-w-full overflow-hidden shadow-2xl rounded-3xl border-4 md:border-8 border-white/5 bg-slate-900/50">
@@ -57,12 +76,22 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
             ))
           ) : (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8 }}
+              initial={{ opacity: 0, filter: "blur(20px)", scale: 1.05 }}
+              animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
+              transition={{ 
+                duration: 2.5, 
+                ease: [0.16, 1, 0.3, 1], // Cinematic out-expo style
+                delay: 0.1
+              }}
               className="absolute inset-0 w-full h-full"
             >
               <img src={imageUrl} alt="Completed" className="w-full h-full object-cover" />
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.3, 0] }}
+                transition={{ duration: 2, times: [0, 0.5, 1], delay: 0.3 }}
+                className="absolute inset-0 bg-white mix-blend-overlay pointer-events-none"
+              />
             </motion.div>
           )}
 
@@ -77,44 +106,6 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
               >
                 <img src={imageUrl} alt="Reference" className="w-full h-full object-cover opacity-60" />
                 <div className="absolute inset-0 bg-indigo-900/20 backdrop-blur-[2px]" />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Success Overlay (Floating Card) */}
-          <AnimatePresence>
-            {hasWon && showSuccessOverlay && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 z-30 bg-black/20 backdrop-blur-[4px] flex items-center justify-center p-6"
-              >
-                <motion.div
-                  initial={{ scale: 0.8, y: 20, opacity: 0 }}
-                  animate={{ scale: 1, y: 0, opacity: 1 }}
-                  exit={{ scale: 0.8, y: 20, opacity: 0 }}
-                  className="bg-slate-900/90 border border-white/20 p-8 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col items-center text-center max-w-sm w-full"
-                >
-                  <motion.div
-                    initial={{ scale: 0, rotate: -20 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: "spring", bounce: 0.5, delay: 0.2 }}
-                  >
-                    <Trophy className="w-16 h-16 text-yellow-500 mb-4 drop-shadow-[0_0_20px_rgba(234,179,8,0.5)]" />
-                  </motion.div>
-                  <h2 className="text-3xl font-black text-white mb-2 tracking-tighter">VICTORY!</h2>
-                  <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-                    A masterstroke! You solved this in <span className="text-indigo-400 font-bold">{moves}</span> moves and <span className="text-purple-400 font-bold">{timeFormatted}</span>.
-                  </p>
-                  <button
-                    onClick={onRestart}
-                    className="group flex items-center gap-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-3.5 rounded-2xl font-black text-sm hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all active:scale-95 uppercase tracking-tighter"
-                  >
-                    <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
-                    New Masterpiece
-                  </button>
-                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>

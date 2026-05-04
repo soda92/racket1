@@ -19,7 +19,6 @@ const SlidingPuzzle: React.FC = () => {
     setTime,
     imageTiles,
     hasWon,
-    showSuccessOverlay,
     isSolving,
     showPreview,
     setShowPreview,
@@ -71,11 +70,7 @@ const SlidingPuzzle: React.FC = () => {
             imageUrl={imageUrl}
             showPreview={showPreview}
             hasWon={hasWon}
-            showSuccessOverlay={showSuccessOverlay}
-            moves={moves}
-            timeFormatted={formatTime(seconds)}
             onTileClick={handleTileClick}
-            onRestart={() => initGame(true)}
             onShowPreview={setShowPreview}
           />
 

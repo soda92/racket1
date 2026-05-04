@@ -15,8 +15,6 @@ export function usePuzzleGame() {
   const [hasWon, setHasWon] = useState(false);
   const [isSolving, setIsSolving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
-  const successTimeoutRef = useRef<number | null>(null);
 
   const convertToDataUrl = async (url: string): Promise<string> => {
     if (url.startsWith("data:")) return url;
@@ -43,7 +41,6 @@ export function usePuzzleGame() {
         setMoves(0);
         setTime(0);
         setHasWon(false);
-        setShowSuccessOverlay(false);
       }
 
       try {
@@ -76,18 +73,6 @@ export function usePuzzleGame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageUrl, size]);
 
-  useEffect(() => {
-    if (hasWon) {
-      if (successTimeoutRef.current) window.clearTimeout(successTimeoutRef.current);
-      successTimeoutRef.current = window.setTimeout(() => {
-        setShowSuccessOverlay(false);
-      }, 3500);
-    }
-    return () => {
-      if (successTimeoutRef.current) window.clearTimeout(successTimeoutRef.current);
-    };
-  }, [hasWon]);
-
   const handleTileClick = useCallback(
     (index: number) => {
       if (hasWon || isSolving) return;
@@ -101,7 +86,6 @@ export function usePuzzleGame() {
 
         if (isSolved(newGrid)) {
           setHasWon(true);
-          setShowSuccessOverlay(true);
         }
       }
     },
@@ -128,7 +112,6 @@ export function usePuzzleGame() {
     }
 
     setHasWon(true);
-    setShowSuccessOverlay(true);
     setIsSolving(false);
   };
 
@@ -219,7 +202,6 @@ export function usePuzzleGame() {
     setTime,
     imageTiles,
     hasWon,
-    showSuccessOverlay,
     isSolving,
     showPreview,
     setShowPreview,
