@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Camera, LayoutGrid, Check, X, RefreshCw, Move, Square } from "lucide-react";
+import { Camera, LayoutGrid, Check, X, RefreshCw, Square, Focus } from "lucide-react";
 import type { GridSize } from "../utils/gameLogic";
 import { cropImage } from "../utils/imageProcessor";
 
@@ -13,7 +13,7 @@ export type CropArea = {
 interface ImagePreparerProps {
   initialImageUrl: string;
   initialSize: GridSize;
-  onComplete: (data: { processedImageUrl: string; size: GridSize }) => void;
+  onComplete: (data: { processedImageUrl: string; initialImageUrl: string; size: GridSize }) => void;
   onCancel?: () => void;
 }
 
@@ -22,6 +22,7 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
   const [size, setSize] = useState<GridSize>(initialSize);
   const [crop, setCrop] = useState<CropArea>({ x: 10, y: 10, width: 80, height: 80 });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [imgAspect, setImgAspect] = useState(1.5); 
   
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragState, setDragState] = useState<{
@@ -32,26 +33,50 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
     startCrop: CropArea;
   } | null>(null);
 
-  // Maintain aspect ratio when size changes
   useEffect(() => {
-    const targetAspect = size.cols / size.rows;
-    const currentAspect = crop.width / crop.height;
+    const img = new Image();
+    img.onload = () => {
+      setImgAspect(img.width / img.height);
+    };
+    img.src = imageUrl;
+  }, [imageUrl]);
+
+  // Calculate the actual playing area (inner crop)
+  // To keep tiles SQUARE, the inner area aspect must be cols / rows
+  const calculateInnerCrop = (currentCrop: CropArea, targetSize: GridSize, imageAspect: number) => {
+    const targetAspect = targetSize.cols / targetSize.rows;
     
-    // We only adjust if the difference is significant to avoid infinite loops or jitter
-    if (Math.abs(targetAspect - currentAspect) > 0.01) {
-      const newCrop = { ...crop };
-      if (targetAspect > 1) {
-        // Wider than tall
-        newCrop.width = Math.min(100 - newCrop.x, 80);
-        newCrop.height = newCrop.width / targetAspect;
-      } else {
-        // Taller than wide
-        newCrop.height = Math.min(100 - newCrop.y, 80);
-        newCrop.width = newCrop.height * targetAspect;
-      }
-      setCrop(newCrop);
+    // Current aspect of selection in pixels = (width_pct / height_pct) * imageAspect
+    const currentAspect = (currentCrop.width / currentCrop.height) * imageAspect;
+
+    let innerWidth = currentCrop.width;
+    let innerHeight = currentCrop.height;
+    let innerX = 0; 
+    let innerY = 0; 
+
+    if (currentAspect > targetAspect) {
+      // Selection is wider than target aspect
+      innerWidth = (currentCrop.height * targetAspect) / imageAspect;
+      innerX = (currentCrop.width - innerWidth) / 2;
+    } else {
+      // Selection is taller than target aspect
+      innerHeight = (currentCrop.width / targetAspect) * imageAspect;
+      innerY = (currentCrop.height - innerHeight) / 2;
     }
-  }, [size.rows, size.cols]);
+
+    return {
+      x: currentCrop.x + innerX,
+      y: currentCrop.y + innerY,
+      width: innerWidth,
+      height: innerHeight,
+      relativeX: innerX,
+      relativeY: innerY,
+      relativeWidth: innerWidth,
+      relativeHeight: innerHeight
+    };
+  };
+
+  const innerCrop = calculateInnerCrop(crop, size, imgAspect);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -82,8 +107,17 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
   const handleApply = async () => {
     setIsProcessing(true);
     try {
-      const processedImageUrl = await cropImage(imageUrl, crop);
-      onComplete({ processedImageUrl, size });
+      const processedImageUrl = await cropImage(imageUrl, {
+        x: innerCrop.x,
+        y: innerCrop.y,
+        width: innerCrop.width,
+        height: innerCrop.height
+      });
+      onComplete({ 
+        processedImageUrl, 
+        initialImageUrl: imageUrl, 
+        size 
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -110,63 +144,37 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
     const dy = ((e.clientY - dragState.startY) / rect.height) * 100;
 
     const newCrop = { ...dragState.startCrop };
-    const targetAspect = size.cols / size.rows;
 
     if (dragState.type === "move") {
       newCrop.x = Math.max(0, Math.min(100 - newCrop.width, dragState.startCrop.x + dx));
       newCrop.y = Math.max(0, Math.min(100 - newCrop.height, dragState.startCrop.y + dy));
     } else if (dragState.type === "resize") {
       const h = dragState.handle;
-      
-      // Calculate changes while maintaining aspect ratio
       if (h === "br") {
-        const potentialWidth = Math.max(10, Math.min(100 - dragState.startCrop.x, dragState.startCrop.width + dx));
-        const potentialHeight = potentialWidth / targetAspect;
-        
-        if (dragState.startCrop.y + potentialHeight <= 100) {
-          newCrop.width = potentialWidth;
-          newCrop.height = potentialHeight;
-        } else {
-          newCrop.height = 100 - dragState.startCrop.y;
-          newCrop.width = newCrop.height * targetAspect;
-        }
+        newCrop.width = Math.max(10, Math.min(100 - dragState.startCrop.x, dragState.startCrop.width + dx));
+        newCrop.height = Math.max(10, Math.min(100 - dragState.startCrop.y, dragState.startCrop.height + dy));
       } else if (h === "tl") {
-        const potentialWidth = Math.max(10, Math.min(dragState.startCrop.x + dragState.startCrop.width, dragState.startCrop.width - dx));
-        const potentialHeight = potentialWidth / targetAspect;
-        const potentialX = dragState.startCrop.x + dragState.startCrop.width - potentialWidth;
-        const potentialY = dragState.startCrop.y + dragState.startCrop.height - potentialHeight;
-
-        if (potentialX >= 0 && potentialY >= 0) {
-          newCrop.width = potentialWidth;
-          newCrop.height = potentialHeight;
-          newCrop.x = potentialX;
-          newCrop.y = potentialY;
-        }
+        const newX = Math.max(0, Math.min(dragState.startCrop.x + dragState.startCrop.width - 10, dragState.startCrop.x + dx));
+        newCrop.width = dragState.startCrop.width + (dragState.startCrop.x - newX);
+        newCrop.x = newX;
+        const newY = Math.max(0, Math.min(dragState.startCrop.y + dragState.startCrop.height - 10, dragState.startCrop.y + dy));
+        newCrop.height = dragState.startCrop.height + (dragState.startCrop.y - newY);
+        newCrop.y = newY;
       } else if (h === "tr") {
-        const potentialWidth = Math.max(10, Math.min(100 - dragState.startCrop.x, dragState.startCrop.width + dx));
-        const potentialHeight = potentialWidth / targetAspect;
-        const potentialY = dragState.startCrop.y + dragState.startCrop.height - potentialHeight;
-
-        if (potentialY >= 0) {
-          newCrop.width = potentialWidth;
-          newCrop.height = potentialHeight;
-          newCrop.y = potentialY;
-        }
+        newCrop.width = Math.max(10, Math.min(100 - dragState.startCrop.x, dragState.startCrop.width + dx));
+        const newY = Math.max(0, Math.min(dragState.startCrop.y + dragState.startCrop.height - 10, dragState.startCrop.y + dy));
+        newCrop.height = dragState.startCrop.height + (dragState.startCrop.y - newY);
+        newCrop.y = newY;
       } else if (h === "bl") {
-        const potentialWidth = Math.max(10, Math.min(dragState.startCrop.x + dragState.startCrop.width, dragState.startCrop.width - dx));
-        const potentialHeight = potentialWidth / targetAspect;
-        const potentialX = dragState.startCrop.x + dragState.startCrop.width - potentialWidth;
-
-        if (potentialX >= 0 && dragState.startCrop.y + potentialHeight <= 100) {
-          newCrop.width = potentialWidth;
-          newCrop.height = potentialHeight;
-          newCrop.x = potentialX;
-        }
+        const newX = Math.max(0, Math.min(dragState.startCrop.x + dragState.startCrop.width - 10, dragState.startCrop.x + dx));
+        newCrop.width = dragState.startCrop.width + (dragState.startCrop.x - newX);
+        newCrop.x = newX;
+        newCrop.height = Math.max(10, Math.min(100 - dragState.startCrop.y, dragState.startCrop.height + dy));
       }
     }
 
     setCrop(newCrop);
-  }, [dragState, size.rows, size.cols]);
+  }, [dragState]);
 
   const onMouseUp = useCallback(() => {
     setDragState(null);
@@ -185,58 +193,86 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 w-full max-w-6xl mx-auto select-none">
-      {/* Left side: Visual Cropper */}
       <div className="flex-1 space-y-4">
         <div className="flex items-center justify-between px-2">
           <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-            <Square className="w-4 h-4" /> Area Selector (Locked to {size.cols}:{size.rows})
+            <Square className="w-4 h-4" /> Frame Selection
           </label>
-          <span className="text-[10px] text-slate-600 font-bold uppercase">Maintains grid aspect ratio</span>
+          <div className="flex items-center gap-2 text-[10px] text-indigo-400 font-black uppercase tracking-widest">
+            <Focus className="w-3 h-3" /> Square tiles guaranteed
+          </div>
         </div>
         
-        <div 
-          ref={containerRef}
-          className="relative aspect-video bg-black/40 rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center group touch-none"
-        >
-          <img src={imageUrl} alt="Setup" className="max-w-full max-h-full object-contain opacity-40 transition-opacity pointer-events-none" />
-          
-          {/* Interactive Crop Box */}
+        <div className="relative aspect-video bg-black/40 rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center group touch-none">
           <div 
-            className={`absolute border-2 border-indigo-500 shadow-[0_0_30px_rgba(99,102,241,0.3)] bg-indigo-500/5 transition-shadow cursor-move ${dragState?.type === 'move' ? 'shadow-[0_0_50px_rgba(99,102,241,0.6)]' : ''}`}
+            ref={containerRef}
+            className="relative shadow-2xl"
             style={{
-              left: `${crop.x}%`,
-              top: `${crop.y}%`,
-              width: `${crop.width}%`,
-              height: `${crop.height}%`
+              aspectRatio: imgAspect,
+              maxHeight: '100%',
+              maxWidth: '100%',
             }}
-            onMouseDown={(e) => onMouseDown(e, "move")}
           >
-            {/* Grid Lines */}
-            <div className="absolute inset-0 grid pointer-events-none" style={{
-              gridTemplateColumns: `repeat(${size.cols}, 1fr)`,
-              gridTemplateRows: `repeat(${size.rows}, 1fr)`,
-            }}>
-              {Array.from({ length: size.rows * size.cols }).map((_, i) => (
-                <div key={i} className="border-[0.5px] border-indigo-500/30" />
-              ))}
-            </div>
+            <img src={imageUrl} alt="Setup" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40" />
 
-            {/* Resize Handles */}
-            <div className="absolute -top-2 -left-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nwse-resize border-2 border-white shadow-lg active:scale-125 transition-transform" onMouseDown={(e) => onMouseDown(e, "resize", "tl")} />
-            <div className="absolute -top-2 -right-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nesw-resize border-2 border-white shadow-lg active:scale-125 transition-transform" onMouseDown={(e) => onMouseDown(e, "resize", "tr")} />
-            <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nesw-resize border-2 border-white shadow-lg active:scale-125 transition-transform" onMouseDown={(e) => onMouseDown(e, "resize", "bl")} />
-            <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nwse-resize border-2 border-white shadow-lg active:scale-125 transition-transform" onMouseDown={(e) => onMouseDown(e, "resize", "br")} />
+            <div 
+              className={`absolute border border-white/30 bg-white/5 transition-shadow cursor-move ${dragState?.type === 'move' ? 'bg-white/10' : ''}`}
+              style={{
+                left: `${crop.x}%`,
+                top: `${crop.y}%`,
+                width: `${crop.width}%`,
+                height: `${crop.height}%`
+              }}
+              onMouseDown={(e) => onMouseDown(e, "move")}
+            >
+              {/* Aspect-Correct Result Overlay */}
+              <div 
+                className="absolute border-2 border-indigo-500 shadow-[0_0_30px_rgba(99,102,241,0.5)] bg-black/10 pointer-events-none overflow-hidden"
+                style={{
+                  left: `${(innerCrop.relativeX / crop.width) * 100}%`,
+                  top: `${(innerCrop.relativeY / crop.height) * 100}%`,
+                  width: `${(innerCrop.relativeWidth / crop.width) * 100}%`,
+                  height: `${(innerCrop.relativeHeight / crop.height) * 100}%`
+                }}
+              >
+                <div 
+                  className="absolute"
+                  style={{
+                    left: `${- (innerCrop.x / innerCrop.width) * 100}%`,
+                    top: `${- (innerCrop.y / innerCrop.height) * 100}%`,
+                    width: `${(100 / innerCrop.width) * 100}%`,
+                    height: `${(100 / innerCrop.height) * 100}%`,
+                  }}
+                >
+                  <img src={imageUrl} alt="" className="w-full h-full object-cover opacity-100" />
+                </div>
+
+                <div className="absolute inset-0 grid z-10" style={{
+                  gridTemplateColumns: `repeat(${size.cols}, 1fr)`,
+                  gridTemplateRows: `repeat(${size.rows}, 1fr)`,
+                }}>
+                  {Array.from({ length: size.rows * size.cols }).map((_, i) => (
+                    <div key={i} className="border-[0.5px] border-indigo-400/30" />
+                  ))}
+                </div>
+              </div>
+
+              <div className="absolute -top-2 -left-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nwse-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20" onMouseDown={(e) => onMouseDown(e, "resize", "tl")} />
+              <div className="absolute -top-2 -right-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nesw-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20" onMouseDown={(e) => onMouseDown(e, "resize", "tr")} />
+              <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nesw-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20" onMouseDown={(e) => onMouseDown(e, "resize", "bl")} />
+              <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-indigo-500 rounded-full cursor-nwse-resize border-2 border-white shadow-lg active:scale-125 transition-transform z-20" onMouseDown={(e) => onMouseDown(e, "resize", "br")} />
+            </div>
           </div>
 
           {isProcessing && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-20">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-30">
               <RefreshCw className="w-12 h-12 text-indigo-400 animate-spin" />
             </div>
           )}
         </div>
       </div>
 
-      {/* Right side: Config */}
       <div className="w-full lg:w-[350px] space-y-8">
         <section className="space-y-6">
           <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
@@ -266,6 +302,9 @@ export const ImagePreparer: React.FC<ImagePreparerProps> = ({ initialImageUrl, i
               />
             </div>
           </div>
+          <p className="text-[10px] text-slate-600 font-bold uppercase text-center px-4 leading-relaxed">
+            The indigo grid shows the actual puzzle area.<br/>Tiles are always perfect squares.
+          </p>
         </section>
 
         <section className="space-y-4">

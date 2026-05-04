@@ -7,10 +7,17 @@ import { PuzzleHeader } from "./Puzzle/PuzzleHeader";
 import { PuzzleBoard } from "./Puzzle/PuzzleBoard";
 import { PuzzleControls } from "./Puzzle/PuzzleControls";
 import { ImagePreparer } from "./ImagePreparer";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 const SlidingPuzzle: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showSetup, setShowSetup] = useState(false);
+  
+  // We keep the original source image to avoid recursive cropping "shrinking" bug
+  const [sourceImageUrl, setSourceImageUrl] = useLocalStorage<string>(
+    "puzzle-source-image", 
+    "https://picsum.photos/1200/800"
+  );
   
   const {
     grid,
@@ -40,10 +47,12 @@ const SlidingPuzzle: React.FC = () => {
   }, [seconds, setTime]);
 
   const handleSetupComplete = (data: { processedImageUrl: string; size: { rows: number; cols: number } }) => {
+    // Note: We don't update sourceImageUrl here because ImagePreparer already manages it 
+    // and we only update it when a NEW image is uploaded/fetched in the preparer.
+    // Wait, actually ImagePreparer needs to tell us if the SOURCE changed.
     setImageUrl(data.processedImageUrl);
     setSize(data.size);
     setShowSetup(false);
-    // initGame will be triggered by useEffect in usePuzzleGame when imageUrl or size changes
   };
 
   const handleFastRandomize = async () => {
@@ -52,7 +61,9 @@ const SlidingPuzzle: React.FC = () => {
       const blob = await response.blob();
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImageUrl(reader.result as string);
+        const url = reader.result as string;
+        setSourceImageUrl(url);
+        setImageUrl(url); // For fast randomize, we use full image as play image
         initGame(true);
       };
       reader.readAsDataURL(blob);
@@ -87,9 +98,12 @@ const SlidingPuzzle: React.FC = () => {
                 <p className="text-slate-400 mt-1">Select an image and configure your challenge.</p>
               </div>
               <ImagePreparer 
-                initialImageUrl={imageUrl} 
+                initialImageUrl={sourceImageUrl} 
                 initialSize={size}
-                onComplete={handleSetupComplete} 
+                onComplete={(data) => {
+                  setSourceImageUrl(data.initialImageUrl); // Preparer tells us the source it used
+                  handleSetupComplete(data);
+                }} 
                 onCancel={moves > 0 ? () => setShowSetup(false) : undefined}
               />
             </motion.div>

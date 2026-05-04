@@ -48,7 +48,7 @@ export function usePuzzleGame() {
       initGame(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageUrl, size]);
+  }, [imageUrl, size.rows, size.cols]); // Depend on row/col specifically to avoid object ref issues
 
   const handleTileClick = useCallback(
     (index: number) => {
